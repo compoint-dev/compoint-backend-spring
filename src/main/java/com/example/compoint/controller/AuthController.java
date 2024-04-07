@@ -3,26 +3,41 @@ package com.example.compoint.controller;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.service.AuthService;
-import com.example.compoint.service.UserService;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.authentication.AuthenticationManager;
-//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-//import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
-
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<Void> login() {
+//    @PostMapping("/signin")
+//    public ResponseEntity<Void> login(@RequestBody LoginRequest loginRequest) {
+//        Authentication authenticationRequest =
+//                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+//        Authentication authenticationResponse =
+//                this.authenticationManager.authenticate(authenticationRequest);
+//
+//        SecurityContextHolder.getContext().setAuthentication(authenticationResponse);
+//
+//        // Дополнительная логика обработки успешной аутентификации
+//
+//        return ResponseEntity.ok().build();
+//    }
 
-        return null;
+    public static record LoginRequest(String username, String password) {
+
+        public String getUsername() {
+            return username;
+        }
+        public String getPassword() {
+            return password;
+        }
     }
 
     @PostMapping("/signup")
@@ -34,14 +49,6 @@ public class AuthController {
             return handleException(e);
         }
 
-    }
-
-    @GetMapping("/info")
-    public ResponseEntity<String> getInfo(){
-        return ResponseEntity.ok("RETURNED");
-    }
-
-    public record LoginRequest(String username, String password) {
     }
 
     private ResponseEntity handleException(Exception e) {

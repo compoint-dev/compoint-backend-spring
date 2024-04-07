@@ -2,10 +2,12 @@ package com.example.compoint.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
+@Data
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -19,14 +21,14 @@ public class UserEntity {
 
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RoleEntity> roles = new HashSet<>();
+    private List<RoleEntity> roles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StandupEntity> standups;
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<StandupEntity> standups;
 
     public UserEntity() {
     }
@@ -69,19 +71,19 @@ public class UserEntity {
         this.password = password;
     }
 
-    public Set<RoleEntity> getRoles() {
+    public List<RoleEntity> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<RoleEntity> roles) {
+    public void setRoles(List<RoleEntity> roles) {
         this.roles = roles;
     }
 
-    public List<StandupEntity> getStandups() {
-        return standups;
-    }
-
-    public void setStandups(List<StandupEntity> standups) {
-        this.standups = standups;
-    }
+//    public List<StandupEntity> getStandups() {
+//        return standups;
+//    }
+//
+//    public void setStandups(List<StandupEntity> standups) {
+//        this.standups = standups;
+//    }
 }

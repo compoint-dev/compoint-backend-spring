@@ -5,6 +5,7 @@ import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -14,17 +15,21 @@ import java.util.List;
 @RequestMapping("/users")
 
 public class UserController {
+
     private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
+    //Получаем список всех пользователей
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<UserEntity> getAllUsers() {
         return userService.getAll();
     }
 
+    //Получаем пользователя по id
     @GetMapping("/{id}")
     public ResponseEntity getOneUser(@PathVariable Long id) {
         try {
@@ -34,7 +39,9 @@ public class UserController {
         }
     }
 
+    //Получаем инфу о пользователе
     @GetMapping("/info")
+    @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('USER')")
     public ResponseEntity<String> userData(Principal principal) {
         return ResponseEntity.ok(principal.getName());
     }
