@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -27,12 +28,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/signup").permitAll()
-                        .requestMatchers("/users/**").authenticated())
-                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
-                .build();
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeRequests()
+                .requestMatchers("/auth/signup").permitAll() // Разрешить доступ к странице регистрации
+                .requestMatchers("/auth/signin").permitAll() // Разрешить доступ к эндпоинту для аутентификации через API
+                .requestMatchers("/users/**").authenticated() // Требовать аутентификацию для других запросов
+                .and()
+                .httpBasic(withDefaults()); // Включить HTTP Basic Authentication
+        return http.build();
     }
 
     @Bean

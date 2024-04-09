@@ -21,11 +21,11 @@ public class UserEntity {
 
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<RoleEntity> roles;
+    private Set<RoleEntity> roles = new HashSet<>();
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<StandupEntity> standups;
@@ -71,11 +71,11 @@ public class UserEntity {
         this.password = password;
     }
 
-    public List<RoleEntity> getRoles() {
+    public Set<RoleEntity> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<RoleEntity> roles) {
+    public void setRoles(Set<RoleEntity> roles) {
         this.roles = roles;
     }
 

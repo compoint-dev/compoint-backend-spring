@@ -36,15 +36,24 @@ public class RoleService {
         return roles;
     }
 
-    public UserEntity assignRoleToUser(Long userId, RoleEntity role) {
+    public UserEntity assignRoleToUser(Long userId, RoleEntity roleName) {
         Optional<UserEntity> userOptional = userRepo.findById(userId);
         if (userOptional.isEmpty()) {
             throw new EntityNotFoundException("User not found with id: " + userId);
         }
 
         UserEntity user = userOptional.get();
-        user.getRoles().add(role);
-        userRepo.save(user);
+
+        Optional<RoleEntity> role = roleRepo.findByName(roleName.getName());
+        if (role == null) {
+            throw new EntityNotFoundException("Role not found with name: " + roleName);
+        }
+
+        if (!user.getRoles().contains(role)) {
+            user.getRoles().add(role.get());
+            userRepo.save(user);
+        }
+
         return user;
     }
 }
