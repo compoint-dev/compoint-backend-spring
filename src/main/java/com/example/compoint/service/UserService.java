@@ -34,7 +34,7 @@ public class UserService {
     }
 
     public Optional<UserEntity> getByUsername(String username) throws UserNotFound {
-        Optional<UserEntity> optionalUser = userRepo.findByUsername(username);
+        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepo.findByUsername(username));
         if (optionalUser.isPresent()) {
             return optionalUser;
         } else {

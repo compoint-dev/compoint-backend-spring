@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+
 @Component
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -19,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> userOptional = userRepo.findByUsername(username);
+        Optional<UserEntity> userOptional = Optional.ofNullable(userRepo.findByUsername(username));
         if (userOptional.isPresent()) {
             return new UserDetailsImpl(userOptional.get());
         } else {

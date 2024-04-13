@@ -14,12 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * @author mhmdz
- * Created By Zeeshan on 20-05-2023
- * @project oauth-jwt
- */
-
 @Component
 public class JwtService {
 
@@ -42,6 +36,7 @@ public class JwtService {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignKey())
+                .setAllowedClockSkewSeconds(350)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
