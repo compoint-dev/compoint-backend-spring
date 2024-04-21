@@ -7,6 +7,7 @@ import java.util.Optional;
 @Entity
 @Table(name = "standups")
 public class StandupEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

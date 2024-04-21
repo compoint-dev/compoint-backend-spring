@@ -14,6 +14,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Builder
 public class RefreshTokenEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

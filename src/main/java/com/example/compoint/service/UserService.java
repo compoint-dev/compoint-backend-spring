@@ -6,6 +6,9 @@ import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,5 +43,14 @@ public class UserService {
         } else {
             throw new UserNotFound("User not found");
         }
+    }
+
+    public Optional<UserDetails> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String)) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            return Optional.of(userDetails);
+        }
+        return Optional.empty();
     }
 }
