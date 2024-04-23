@@ -1,11 +1,15 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -36,11 +40,11 @@ public class UserController {
         }
     }
 
-    @GetMapping("/get-by-username")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity getUserByUsername(@RequestParam String username) {
+    @GetMapping("/username")
+    @PreAuthorize("hasAuthority('ADMIN') or #username == principal.username")
+    public ResponseEntity getUserByUsername(@RequestParam String username, Principal principal) {
         try {
-            return ResponseEntity.ok(userService.getByUsername(username));
+            return ResponseEntity.ok(userService.getByUsername(username,principal));
         } catch (UserNotFound e) {
             return handleException(e);
         }

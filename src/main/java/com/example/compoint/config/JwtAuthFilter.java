@@ -1,7 +1,7 @@
 package com.example.compoint.config;
 
 import com.example.compoint.service.JwtService;
-import com.example.compoint.service.UserDetailsServiceImpl;
+import com.example.compoint.service.UserDetailsImplService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final UserDetailsImplService userDetailsImplService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -45,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         username = jwtService.extractUsername(token);
 
         if(username != null){
-            UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
+            UserDetails userDetails = userDetailsImplService.loadUserByUsername(username);
             if(jwtService.validateToken(token, userDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

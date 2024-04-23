@@ -1,6 +1,6 @@
 package com.example.compoint.controller;
 
-import com.example.compoint.config.UserData;
+import com.example.compoint.dtos.UserDataDTO;
 import com.example.compoint.dtos.AuthRequestDTO;
 import com.example.compoint.dtos.JwtResponseDTO;
 import com.example.compoint.dtos.RefreshTokenRequestDTO;
@@ -69,11 +69,11 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<?> ValidateSession() {
+    public ResponseEntity<?> validateSession() {
         Optional<UserDetails> userDetailsOpt = userService.getCurrentUser();
         if (userDetailsOpt.isPresent()) {
             UserDetails userDetails = userDetailsOpt.get();
-            return ResponseEntity.ok(new UserData(userDetails.getUsername(), userDetails.getAuthorities(), userDetails.isCredentialsNonExpired()));
+            return ResponseEntity.ok(new UserDataDTO(userDetails.getUsername(), userDetails.getAuthorities(), userDetails.isCredentialsNonExpired()));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

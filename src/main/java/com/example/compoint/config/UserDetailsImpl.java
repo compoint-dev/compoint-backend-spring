@@ -1,6 +1,7 @@
 package com.example.compoint.config;
 
 import com.example.compoint.entity.UserEntity;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,11 +11,14 @@ import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
 
+    @Getter
+    private final Long id;
     private final String username;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(UserEntity user) {
+    public UserDetailsImpl(Long id, UserEntity user) {
+        this.id = id;
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.authorities = user.getRoles().stream()

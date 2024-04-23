@@ -1,11 +1,17 @@
 package com.example.compoint.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 
 @Entity
 @Table(name = "standups")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class StandupEntity {
 
     @Id
@@ -21,9 +27,6 @@ public class StandupEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
-
-    public StandupEntity() {
-    }
 
     public Long getId() {
         return id;

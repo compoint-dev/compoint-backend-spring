@@ -16,15 +16,15 @@ public class StandupController {
         this.standupService = standupService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity createStandup(@RequestParam Long userId, @RequestBody StandupEntity standup) {
-        try {
-            standupService.create(standup, userId);
-            return ResponseEntity.ok("Стендап успешно создан");
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
+//    @PostMapping("/create")
+//    public ResponseEntity createStandup(@RequestParam Long userId, @RequestBody StandupEntity standup) {
+//        try {
+//            standupService.create(standup, userId);
+//            return ResponseEntity.ok("Стендап успешно создан");
+//        } catch (Exception e) {
+//            return handleException(e);
+//        }
+//    }
 
     @GetMapping(params = "name")
     public ResponseEntity getOneStandup(@RequestParam String name) {

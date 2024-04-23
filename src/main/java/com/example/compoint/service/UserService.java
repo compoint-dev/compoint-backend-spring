@@ -1,16 +1,19 @@
 package com.example.compoint.service;
 
+import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.entity.UserEntity;
-import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotFound;
-import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,12 +39,17 @@ public class UserService {
         }
     }
 
-    public Optional<UserEntity> getByUsername(String username) throws UserNotFound {
-        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepo.findByUsername(username));
-        if (optionalUser.isPresent()) {
-            return optionalUser;
+    public Optional<UserEntity> getByUsername(String username, Principal principal) throws UserNotFound {
+        UserDetailsImpl userDetails = (UserDetailsImpl) ((Authentication) principal).getPrincipal();
+
+        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN")) || userDetails.getUsername().equals(username)) {
+            Optional<UserEntity> user = Optional.ofNullable(userRepo.findByUsername(username));
+            if (!user.isPresent()) {
+                throw new UserNotFound("User not found");
+            }
+            return user;
         } else {
-            throw new UserNotFound("User not found");
+            throw new UserNotFound("Access denied");
         }
     }
 

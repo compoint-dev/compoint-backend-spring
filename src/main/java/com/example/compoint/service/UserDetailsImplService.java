@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsImplService implements UserDetailsService {
 
     private final UserRepo userRepo;
 
@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> userOptional = Optional.ofNullable(userRepo.findByUsername(username));
         if (userOptional.isPresent()) {
-            return new UserDetailsImpl(userOptional.get());
+            return new UserDetailsImpl(userOptional.get().getId(),userOptional.get());
         } else {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }

@@ -2,7 +2,7 @@ package com.example.compoint.security;
 
 import com.example.compoint.config.JwtAuthFilter;
 import com.example.compoint.repository.UserRepo;
-import com.example.compoint.service.UserDetailsServiceImpl;
+import com.example.compoint.service.UserDetailsImplService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(){
-        return new UserDetailsServiceImpl(userRepo);
+        return new UserDetailsImplService(userRepo);
     }
 
     @Bean
