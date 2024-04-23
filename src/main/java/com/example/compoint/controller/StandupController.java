@@ -1,13 +1,16 @@
 package com.example.compoint.controller;
 
 import com.example.compoint.entity.StandupEntity;
+import com.example.compoint.exception.StandupAlreadyExist;
+import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.StandupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/standups")
+@RequestMapping("api/standups")
 public class StandupController {
     @Autowired
     private StandupService standupService;
@@ -16,15 +19,15 @@ public class StandupController {
         this.standupService = standupService;
     }
 
-//    @PostMapping("/create")
-//    public ResponseEntity createStandup(@RequestParam Long userId, @RequestBody StandupEntity standup) {
-//        try {
-//            standupService.create(standup, userId);
-//            return ResponseEntity.ok("Стендап успешно создан");
-//        } catch (Exception e) {
-//            return handleException(e);
-//        }
-//    }
+    @PostMapping("{id}/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity createStandup(@PathVariable Long id, @RequestBody StandupEntity standup) {
+        try {
+            return ResponseEntity.ok(standupService.create(standup, id));
+        } catch (StandupAlreadyExist | UserNotFound e) {
+            return handleException(e);
+        }
+    }
 
     @GetMapping(params = "name")
     public ResponseEntity getOneStandup(@RequestParam String name) {
@@ -43,6 +46,7 @@ public class StandupController {
         }
     }
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity getAllStandups() {
         try {
             return ResponseEntity.ok(standupService.getAll());

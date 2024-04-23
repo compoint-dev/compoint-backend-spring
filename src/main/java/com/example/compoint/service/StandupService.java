@@ -24,16 +24,22 @@ public class StandupService {
     @Autowired
     private UserService userService;
 
-//    public StandupEntity create (StandupEntity standup, Long userId, Principal principal) throws StandupAlreadyExist, UserNotFound {
-//        Optional<UserEntity> userOptional = userService.getById(userId, principal );
-//        UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("Пользователь не найден"));
-//        standup.setUser(user);
-//
-//        if (standupRepo.findByName(standup.getName())!=null) {
-//           throw new StandupAlreadyExist("Стендап уже существует");
-//      }
-//        return standupRepo.save(standup);
-//    }
+    public StandupEntity create (StandupEntity standup, Long userId) throws StandupAlreadyExist, UserNotFound {
+        Optional<UserEntity> userOptional = userService.getById(userId);
+        UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("Пользователь не найден"));
+        standup.setUser(user);
+
+        if (standupRepo.findByName(standup.getName())!=null) {
+           throw new StandupAlreadyExist("Стендап уже существует");
+      }
+        return standupRepo.save(standup);
+    }
+
+    public List<StandupEntity> getAll () {
+        List<StandupEntity> standups = new ArrayList<>();
+        standupRepo.findAll().forEach(standups::add);
+        return standups;
+    }
 
     public Standup getOne (String name) throws StandupNotFound {
         StandupEntity standupEntity = standupRepo.findByName(name);
@@ -53,9 +59,5 @@ public class StandupService {
         }
     }
 
-    public List<Standup> getAll () {
-        List<Standup> standups = new ArrayList<>();
-        standupRepo.findAll().forEach(standupEntity -> standups.add(Standup.toModel(standupEntity)));
-        return standups;
-    }
+
 }
