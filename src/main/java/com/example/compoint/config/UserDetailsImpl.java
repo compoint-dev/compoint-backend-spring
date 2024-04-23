@@ -10,15 +10,11 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
-
-    @Getter
-    private final Long id;
     private final String username;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, UserEntity user) {
-        this.id = id;
+    public UserDetailsImpl(UserEntity user) {
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.authorities = user.getRoles().stream()

@@ -15,7 +15,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("api/roles")
 @RequiredArgsConstructor
 public class RoleController {
 

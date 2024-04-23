@@ -1,19 +1,16 @@
 package com.example.compoint.service;
 
-import com.example.compoint.config.UserDetailsImpl;
+import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.UserEntity;
+import com.example.compoint.exception.RoleNotFound;
+import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotFound;
+import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +20,30 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepo userRepo;
+    private final RoleRepo roleRepo;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserEntity create(UserEntity user) throws UserAlreadyExist, RoleNotFound {
+
+        //Проверяет на дубликат юзера
+        Optional<UserEntity> optionalUser = userRepo.findByUsername(user.getUsername());
+        if (optionalUser.isPresent()) {
+            throw new UserAlreadyExist("User already exists");
+        }
+
+        //Шифруем пароль
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        //Проверяет на наличие роли для юзера
+        Optional<RoleEntity> optionalRole = roleRepo.findByName("USER");
+        if (optionalRole.isEmpty()) {
+            throw new RoleNotFound("Role 'USER' not found");
+        }
+        //Присваиваем роль "USER" для нового пользователя
+        user.getRoles().add(optionalRole.get());
+
+        return userRepo.save(user);
+    }
 
     public List<UserEntity> getAll() {
         List<UserEntity> users = new ArrayList<>();
@@ -39,26 +60,44 @@ public class UserService {
         }
     }
 
-    public Optional<UserEntity> getByUsername(String username, Principal principal) throws UserNotFound {
-        UserDetailsImpl userDetails = (UserDetailsImpl) ((Authentication) principal).getPrincipal();
-
-        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN")) || userDetails.getUsername().equals(username)) {
-            Optional<UserEntity> user = Optional.ofNullable(userRepo.findByUsername(username));
-            if (!user.isPresent()) {
-                throw new UserNotFound("User not found");
-            }
-            return user;
+    public Optional<UserEntity> getByUsername(String username) throws UserNotFound {
+        Optional<UserEntity> optionalUser = userRepo.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            return optionalUser;
         } else {
-            throw new UserNotFound("Access denied");
+            throw new UserNotFound("User not found");
         }
     }
 
-    public Optional<UserDetails> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String)) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            return Optional.of(userDetails);
+
+    public UserEntity update(Long id, UserEntity user) throws UserNotFound, UserAlreadyExist {
+        Optional<UserEntity> optionalUser = userRepo.findById(id);
+        if (!optionalUser.isPresent()) {
+            throw new UserNotFound("User not found");
         }
-        return Optional.empty();
+
+        Optional<UserEntity> optionalNewInfo = userRepo.findByUsername(user.getUsername());
+        if (optionalNewInfo.isPresent()) {
+            throw new UserAlreadyExist("Username already taken");
+        }
+
+        // Получаем существующего юзера из Optional
+        UserEntity existingUser = optionalUser.get();
+
+        // Обновляем данные пользователя
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepo.save(existingUser);
+    }
+
+    public String delete(Long id) throws UserNotFound {
+        Optional<UserEntity> optionalUser = userRepo.findById(id);
+        if (!optionalUser.isPresent()) {
+            throw new UserNotFound("User not found");
+        }
+
+        userRepo.deleteById(id);
+        return "User with ID " + id + " has been deleted successfully";
     }
 }

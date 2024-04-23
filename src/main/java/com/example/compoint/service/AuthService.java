@@ -22,7 +22,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public void create(UserEntity user) throws UserAlreadyExist, RoleNotFound {
-        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepo.findByUsername(user.getUsername()));
+        Optional<UserEntity> optionalUser = userRepo.findByUsername(user.getUsername());
         if (optionalUser.isPresent()) {
             throw new UserAlreadyExist("User already exists");
         }
