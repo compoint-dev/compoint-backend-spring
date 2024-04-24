@@ -26,12 +26,13 @@ public class StandupService {
 
     public StandupEntity create (StandupEntity standup, Long userId) throws StandupAlreadyExist, UserNotFound {
         Optional<UserEntity> userOptional = userService.getById(userId);
-        UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("Пользователь не найден"));
+        UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("User not found"));
         standup.setUser(user);
 
         if (standupRepo.findByName(standup.getName())!=null) {
-           throw new StandupAlreadyExist("Стендап уже существует");
-      }
+           throw new StandupAlreadyExist("Standup already exist");
+        }
+        standup.setRating(0);
         return standupRepo.save(standup);
     }
 
@@ -41,23 +42,32 @@ public class StandupService {
         return standups;
     }
 
-    public Standup getOne (String name) throws StandupNotFound {
+    public Standup getByName (String name) throws StandupNotFound {
         StandupEntity standupEntity = standupRepo.findByName(name);
         if (standupEntity != null) {
             return Standup.toModel(standupEntity);
         } else {
-            throw new StandupNotFound("Стендап не существует");
+            throw new StandupNotFound("Standup not found");
         }
     }
 
-    public Standup getOne (Long id) throws StandupNotFound {
+    public Standup getById (Long id) throws StandupNotFound {
         Optional<StandupEntity> optionalStandup = standupRepo.findById(id);
         if (optionalStandup.isPresent()) {
             return Standup.toModel(optionalStandup.get());
         } else {
-            throw new StandupNotFound("Стендап не существует");
+            throw new StandupNotFound("Standup not found");
         }
     }
 
+    public String delete(Long id) throws StandupNotFound {
+        Optional<StandupEntity> optionalStandup = standupRepo.findById(id);
+        if (!optionalStandup.isPresent()) {
+            throw new StandupNotFound("Standup not found");
+        }
+
+        standupRepo.deleteById(id);
+        return "Standup with ID " + id + " has been deleted successfully";
+    }
 
 }

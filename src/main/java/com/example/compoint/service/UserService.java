@@ -1,11 +1,13 @@
 package com.example.compoint.service;
 
 import com.example.compoint.entity.RoleEntity;
+import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.repository.RoleRepo;
+import com.example.compoint.repository.StandupRepo;
 import com.example.compoint.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +23,7 @@ public class UserService {
 
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
+    private final StandupRepo standupRepo;
     private final PasswordEncoder passwordEncoder;
 
     public UserEntity create(UserEntity user) throws UserAlreadyExist, RoleNotFound {
@@ -39,7 +42,7 @@ public class UserService {
         if (optionalRole.isEmpty()) {
             throw new RoleNotFound("Role 'USER' not found");
         }
-        //Присваиваем роль "USER" для нового пользователя
+        //Присваиваем роль "USER" для нового юзера
         user.getRoles().add(optionalRole.get());
 
         return userRepo.save(user);
@@ -97,6 +100,16 @@ public class UserService {
             throw new UserNotFound("User not found");
         }
 
+        //Ищем все стендапы удаляемого юзера
+        UserEntity user = optionalUser.get();
+        List<StandupEntity> standups = standupRepo.findByUserId(user.getId());
+
+        //Удаляем все стендапы удаляемого юзера
+        for (StandupEntity standup : standups) {
+            standupRepo.deleteById(standup.getId());
+        }
+
+        // Удаление самого юзера
         userRepo.deleteById(id);
         return "User with ID " + id + " has been deleted successfully";
     }
