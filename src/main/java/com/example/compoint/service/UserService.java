@@ -79,13 +79,14 @@ public class UserService {
             throw new UserNotFound("User not found");
         }
 
+        // Получаем найденого юзера
+        UserEntity existingUser = optionalUser.get();
+
+        // Проверяем что username свободен и не равен нашему
         Optional<UserEntity> optionalNewInfo = userRepo.findByUsername(user.getUsername());
-        if (optionalNewInfo.isPresent()) {
+        if (optionalNewInfo.isPresent() && !optionalNewInfo.get().getId().equals(existingUser.getId())) {
             throw new UserAlreadyExist("Username already taken");
         }
-
-        // Получаем существующего юзера из Optional
-        UserEntity existingUser = optionalUser.get();
 
         // Обновляем данные пользователя
         existingUser.setUsername(user.getUsername());

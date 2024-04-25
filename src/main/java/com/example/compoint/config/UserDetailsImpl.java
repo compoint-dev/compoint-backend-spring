@@ -12,14 +12,19 @@ import java.util.stream.Collectors;
 public class UserDetailsImpl implements UserDetails {
     private final String username;
     private final String password;
+    @Getter
+    private final Long id;
+
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(UserEntity user) {
+
+    public UserDetailsImpl(UserEntity user, Long id) {
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().toUpperCase()))
                 .collect(Collectors.toList());
+        this.id = id;
     }
 
     @Override
@@ -56,4 +61,5 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
