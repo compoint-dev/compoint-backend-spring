@@ -5,8 +5,10 @@ import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleAlreadyExist;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
+import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.RoleService;
 import com.example.compoint.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +26,12 @@ public class RoleController {
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity createNewRole(@RequestBody RoleEntity role) throws RoleAlreadyExist {
+    public ResponseEntity createNewRole(@RequestBody RoleEntity role) {
         try {
             roleService.create(role);
             return ResponseEntity.ok("Role created");
         } catch (RoleAlreadyExist e) {
-            return handleException(e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -45,9 +47,5 @@ public class RoleController {
     public ResponseEntity assignRoleToUser(@PathVariable Long userId, @RequestBody RoleEntity role) {
         UserEntity user = roleService.assignRoleToUser(userId, role);
         return ResponseEntity.ok(user);
-    }
-
-    private ResponseEntity handleException(Exception e) {
-        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
     }
 }

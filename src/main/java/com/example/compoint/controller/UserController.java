@@ -4,6 +4,7 @@ import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
+import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.UserService;
@@ -30,8 +31,10 @@ public class UserController {
     public ResponseEntity createUser(@RequestBody UserEntity user){
         try {
             return ResponseEntity.ok(userService.create(user));
-        } catch (UserAlreadyExist | RoleNotFound e) {
-            return handleException(e);
+        } catch (UserAlreadyExist e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (RoleNotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -44,13 +47,13 @@ public class UserController {
     }
 
     //Получаем пользователя по id
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity getUserById(@PathVariable Long id) {
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
+    public ResponseEntity getUserById(@PathVariable Long userId) {
         try {
-            return ResponseEntity.ok(userService.getById(id));
+            return ResponseEntity.ok(userService.getById(userId));
         } catch (UserNotFound e) {
-            return handleException(e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -61,27 +64,29 @@ public class UserController {
         try {
             return ResponseEntity.ok(userService.getByUsername(username));
         } catch (UserNotFound e) {
-            return handleException(e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @PutMapping("{id}/update")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserEntity user){
+    @PutMapping("/{userId}/update")
+    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
+    public ResponseEntity updateUser(@PathVariable Long userId, @RequestBody UserEntity user){
         try {
-            return ResponseEntity.ok(userService.update(id, user));
-        } catch (UserNotFound | UserAlreadyExist e) {
-            return handleException(e);
+            return ResponseEntity.ok(userService.update(userId, user));
+        } catch (UserNotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (UserAlreadyExist e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 
-    @DeleteMapping("{id}/delete")
+    @DeleteMapping("/{id}/delete")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity deleteUser(@PathVariable Long id){
         try {
             return ResponseEntity.ok(userService.delete(id));
         } catch (UserNotFound e) {
-            return handleException(e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -89,10 +94,6 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('USER')")
     public ResponseEntity<String> userData(Principal principal) {
         return ResponseEntity.ok(principal.getName());
-    }
-
-    private ResponseEntity<String> handleException(Exception e) {
-        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
     }
 
 }

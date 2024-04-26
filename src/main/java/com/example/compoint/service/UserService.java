@@ -101,14 +101,15 @@ public class UserService {
             throw new UserNotFound("User not found");
         }
 
-        //Ищем все стендапы удаляемого юзера
+        //Получаем юзера
         UserEntity user = optionalUser.get();
-        List<StandupEntity> standups = standupRepo.findByUserId(user.getId());
 
-        //Удаляем все стендапы удаляемого юзера
-        for (StandupEntity standup : standups) {
-            standupRepo.deleteById(standup.getId());
-        }
+        //Ищем все стендапы удаляемого юзера
+        List<StandupEntity> standups = standupRepo.findByUserId(user.getId());
+            // Удаляем все стендапы удаляемого юзера
+            for (StandupEntity standup : standups) {
+                standupRepo.deleteById(standup.getId());
+            }
 
         // Удаление самого юзера
         userRepo.deleteById(id);

@@ -5,6 +5,7 @@ import com.example.compoint.dtos.JwtResponseDTO;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
+import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.AuthService;
 import com.example.compoint.service.JwtService;
 import com.example.compoint.service.UserService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
-    private final UserService userService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -66,12 +67,10 @@ public class AuthController {
         try {
             authService.create(user);
             return ResponseEntity.ok("User created");
-        } catch (UserAlreadyExist | RoleNotFound e) {
-            return handleException(e);
+        } catch (UserAlreadyExist e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (RoleNotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-    }
-
-    private ResponseEntity<String> handleException(Exception e) {
-        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
     }
 }

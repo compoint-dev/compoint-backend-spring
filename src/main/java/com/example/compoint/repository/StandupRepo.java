@@ -5,9 +5,10 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StandupRepo extends CrudRepository <StandupEntity, Long> {
-    StandupEntity findByName(String name);
-    List<StandupEntity> findByUserId (Long id);
+    Optional<StandupEntity> findByName(String name);
+    List<StandupEntity>  findByUserId (Long id);
 }

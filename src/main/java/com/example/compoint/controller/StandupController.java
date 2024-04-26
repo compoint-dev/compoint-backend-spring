@@ -23,19 +23,19 @@ public class StandupController {
     }
 
     //Создание нового стендапа, {id} должен быть равен userId
-    @PostMapping("{id}/create")
-    @PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
-    public ResponseEntity createStandup(@PathVariable Long id, @RequestBody StandupEntity standup) {
+    @PostMapping("/{userId}/create")
+    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
+    public ResponseEntity createStandup(@PathVariable Long userId, @RequestBody StandupEntity standup) {
 
         try {
-            return ResponseEntity.ok(standupService.create(standup, id));
+            return ResponseEntity.ok(standupService.create(standup, userId));
         } catch (StandupAlreadyExist | UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
+    //Получение списка всех стендапов
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity getAllStandups() {
         try {
             return ResponseEntity.ok(standupService.getAll());
@@ -44,16 +44,29 @@ public class StandupController {
         }
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
-    public ResponseEntity getStandupById(@PathVariable Long id) {
+    //Получение списка всех стендапов конкретного юзера
+    @GetMapping("/{userId}/all")
+    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
+    public ResponseEntity getAllStandupsByUserId(@PathVariable Long userId) {
         try {
-            return ResponseEntity.ok(standupService.getById(id));
+            return ResponseEntity.ok(standupService.getAllByUserId(userId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //Получает конкретный стендап по id
+    @GetMapping("/{standupId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity getStandupById(@PathVariable Long standupId) {
+        try {
+            return ResponseEntity.ok(standupService.getById(standupId));
         } catch (StandupNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
+    //Получает конкретный стендап по названию
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity getStandupByName(@RequestParam String name) {
@@ -77,10 +90,11 @@ public class StandupController {
         }
     }
 
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity deleteStandup(@PathVariable Long id){
+    //Удаляет стендап по id
+    @DeleteMapping("/{standupId}/delete")
+    public ResponseEntity deleteStandup(@PathVariable Long standupId){
         try {
-            return ResponseEntity.ok(standupService.delete(id));
+            return ResponseEntity.ok(standupService.delete(standupId));
         } catch (StandupNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (AccessDenied e) {

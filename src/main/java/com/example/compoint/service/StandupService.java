@@ -7,18 +7,17 @@ import com.example.compoint.exception.AccessDenied;
 import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
-import com.example.compoint.model.Standup;
 import com.example.compoint.repository.StandupRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.security.Principal;
+import com.example.compoint.dtos.StandupDTO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StandupService {
@@ -34,38 +33,44 @@ public class StandupService {
         UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("User not found"));
         standup.setUser(user);
 
-        if (standupRepo.findByName(standup.getName())!=null) {
+        if (standupRepo.findByName(standup.getName()).isPresent()) {
            throw new StandupAlreadyExist("Standup already exist");
         }
         standup.setRating(0);
         return standupRepo.save(standup);
     }
 
-    public List<StandupEntity> getAll () {
-        List<StandupEntity> standups = new ArrayList<>();
-        standupRepo.findAll().forEach(standups::add);
+    public List<StandupDTO> getAll () {
+        List<StandupEntity> standups = (List<StandupEntity>) standupRepo.findAll();
+        return standups.stream()
+                .map(StandupDTO::new) // Использование конструктора DTO
+                .collect(Collectors.toList());
+    }
+
+    public List<StandupEntity> getAllByUserId(Long userId) {
+        List<StandupEntity> standups = standupRepo.findByUserId(userId);
         return standups;
     }
 
-    public Standup getByName (String name) throws StandupNotFound {
-        StandupEntity standupEntity = standupRepo.findByName(name);
-        if (standupEntity != null) {
-            return Standup.toModel(standupEntity);
+    public Optional<StandupEntity> getByName (String name) throws StandupNotFound {
+        Optional<StandupEntity> standupEntity = standupRepo.findByName(name);
+        if (standupEntity.isPresent()) {
+            return standupEntity;
         } else {
             throw new StandupNotFound("Standup not found");
         }
     }
 
-    public Standup getById (Long id) throws StandupNotFound {
+    public Optional<StandupEntity> getById (Long id) throws StandupNotFound {
         Optional<StandupEntity> optionalStandup = standupRepo.findById(id);
         if (optionalStandup.isPresent()) {
-            return Standup.toModel(optionalStandup.get());
+            return optionalStandup;
         } else {
             throw new StandupNotFound("Standup not found");
         }
     }
 
-    public Standup update(Long id, StandupEntity standup) throws StandupNotFound, StandupAlreadyExist{
+    public StandupEntity update(Long id, StandupEntity standup) throws StandupNotFound, StandupAlreadyExist{
     return null;
     }
 
@@ -90,6 +95,7 @@ public class StandupService {
         standupRepo.deleteById(id);
         return "Standup with ID " + id + " has been deleted successfully";
     }
+
 
 
 }
