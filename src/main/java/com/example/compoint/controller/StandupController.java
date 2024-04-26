@@ -6,6 +6,7 @@ import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.StandupService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class StandupController {
         this.standupService = standupService;
     }
 
-    //Создание нового стендапа, {id} должен быть равен userId
+    // Create a new standup where {id} must be equal to userId
     @PostMapping("/{userId}/create")
     @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
     public ResponseEntity createStandup(@PathVariable Long userId, @RequestBody StandupEntity standup) {
@@ -34,7 +35,7 @@ public class StandupController {
         }
     }
 
-    //Получение списка всех стендапов
+    // Retrieve the list of all standups
     @GetMapping("/all")
     public ResponseEntity getAllStandups() {
         try {
@@ -44,7 +45,7 @@ public class StandupController {
         }
     }
 
-    //Получение списка всех стендапов конкретного юзера
+    // Retrieve the list of all standups for a specific user
     @GetMapping("/{userId}/all")
     @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
     public ResponseEntity getAllStandupsByUserId(@PathVariable Long userId) {
@@ -55,7 +56,7 @@ public class StandupController {
         }
     }
 
-    //Получает конкретный стендап по id
+    // Retrieve a specific standup by id
     @GetMapping("/{standupId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity getStandupById(@PathVariable Long standupId) {
@@ -66,7 +67,7 @@ public class StandupController {
         }
     }
 
-    //Получает конкретный стендап по названию
+    // Retrieve a specific standup by name
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity getStandupByName(@RequestParam String name) {
@@ -90,7 +91,7 @@ public class StandupController {
         }
     }
 
-    //Удаляет стендап по id
+    // Delete a standup by id
     @DeleteMapping("/{standupId}/delete")
     public ResponseEntity deleteStandup(@PathVariable Long standupId){
         try {
