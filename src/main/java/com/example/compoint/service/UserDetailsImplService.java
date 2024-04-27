@@ -22,7 +22,7 @@ public class UserDetailsImplService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> userOptional = userRepo.findByUsername(username);
         if (userOptional.isPresent()) {
-            return new UserDetailsImpl(userOptional.get(), userOptional.get().getId());
+            return UserDetailsImpl.fromUserEntity(userOptional.get());
         } else {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }

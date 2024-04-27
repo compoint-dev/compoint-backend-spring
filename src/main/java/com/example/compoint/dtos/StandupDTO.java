@@ -1,12 +1,11 @@
 package com.example.compoint.dtos;
 
 import com.example.compoint.entity.StandupEntity;
-import com.example.compoint.entity.UserEntity;
-import com.example.compoint.entity.LanguageEntity;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,11 +21,7 @@ public class StandupDTO {
     private UserDTO user;
     private Set<LanguageDTO> languages;
 
-    // Пустой конструктор
-    public StandupDTO() {
-    }
-
-    // Конструктор для конвертации из сущности
+    // toDTO
     public StandupDTO(StandupEntity standup) {
         this.id = standup.getId();
         this.name = standup.getName();
@@ -36,6 +31,19 @@ public class StandupDTO {
         this.rating = standup.getRating();
         this.user = new UserDTO(standup.getUser().getUsername());
         this.languages = standup.getLanguages().stream()
+                .map(language -> new LanguageDTO(language.getName()))
+                .collect(Collectors.toSet());
+    }
+
+    public StandupDTO(Optional<StandupEntity> standup) {
+        this.id = standup.get().getId();
+        this.name = standup.get().getName();
+        this.description = standup.get().getDescription();
+        this.price = standup.get().getPrice();
+        this.imagePath = standup.get().getImagePath();
+        this.rating = standup.get().getRating();
+        this.user = new UserDTO(standup.get().getUser().getUsername());
+        this.languages = standup.get().getLanguages().stream()
                 .map(language -> new LanguageDTO(language.getName()))
                 .collect(Collectors.toSet());
     }

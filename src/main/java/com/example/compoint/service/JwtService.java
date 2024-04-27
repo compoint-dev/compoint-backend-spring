@@ -18,7 +18,7 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
-    @Value("${jwt.secret}")
+    @Value("${compoint.jwtSecret}")
     private String SECRET;
 
     public String extractUsername(String token) {
@@ -53,8 +53,9 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public String GenerateToken(String username){
+    public String GenerateToken(Long userId, String username){
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
         return createToken(claims, username);
     }
 

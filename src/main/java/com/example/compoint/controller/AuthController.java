@@ -8,10 +8,8 @@ import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.AuthService;
 import com.example.compoint.service.JwtService;
+
 import com.example.compoint.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,26 +24,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final AuthService authService;
     private final JwtService jwtService;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
 
     @Value("${compoint.cookieExpiry}")
     private int cookieExpiry;
 
     @PostMapping("/signin")
-    public JwtResponseDTO AuthenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response){
+    public JwtResponseDTO AuthenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response) throws UserNotFound {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
         if(authentication.isAuthenticated()){
-            String  accessToken = jwtService.GenerateToken(authRequestDTO.getUsername());
+            Optional<UserEntity> userId = userService.getByUsername(authRequestDTO.getUsername()); // Предположим, что у вас есть метод для получения userId по имени пользователя
+            String accessToken = jwtService.GenerateToken(userId.get().getId(), authRequestDTO.getUsername());
             ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
                     .httpOnly(true)
                     .secure(false)
@@ -55,7 +58,7 @@ public class AuthController {
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
             return JwtResponseDTO.builder()
                     .accessToken(accessToken)
-                    .username(authRequestDTO.getUsername())
+                    .id(userId.get().getId())
                     .build();
         } else {
             throw new UsernameNotFoundException("invalid user request..!!");

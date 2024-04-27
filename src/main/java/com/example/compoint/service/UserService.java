@@ -1,21 +1,22 @@
 package com.example.compoint.service;
 
+import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
+import com.example.compoint.exception.UserNotAuthorized;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.StandupRepo;
 import com.example.compoint.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +73,6 @@ public class UserService {
         }
     }
 
-
     public UserEntity update(Long id, UserEntity user) throws UserNotFound, UserAlreadyExist {
         Optional<UserEntity> optionalUser = userRepo.findById(id);
         if (!optionalUser.isPresent()) {
@@ -114,5 +114,13 @@ public class UserService {
         // Удаление самого юзера
         userRepo.deleteById(id);
         return "User with ID " + id + " has been deleted successfully";
+    }
+
+    public Map<String, Long> getCurrentUser (Authentication authentication) throws UserNotAuthorized {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UserNotAuthorized("User not authorized");
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return Collections.singletonMap("userId", userDetails.getId());
     }
 }

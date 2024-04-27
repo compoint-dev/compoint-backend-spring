@@ -1,6 +1,7 @@
 package com.example.compoint.service;
 
 import com.example.compoint.config.UserDetailsImpl;
+import com.example.compoint.dtos.StandupDTO;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.AccessDenied;
@@ -13,8 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.example.compoint.dtos.StandupDTO;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,16 +28,19 @@ public class StandupService {
     @Autowired
     private UserService userService;
 
-    public StandupEntity create (StandupEntity standup, Long userId) throws StandupAlreadyExist, UserNotFound {
+    public StandupDTO create (StandupEntity standup, Long userId) throws StandupAlreadyExist, UserNotFound {
         Optional<UserEntity> userOptional = userService.getById(userId);
         UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("User not found"));
+
         standup.setUser(user);
 
         if (standupRepo.findByName(standup.getName()).isPresent()) {
            throw new StandupAlreadyExist("Standup already exist");
         }
         standup.setRating(0);
-        return standupRepo.save(standup);
+
+        StandupEntity createdStandup = standupRepo.save(standup);
+        return new StandupDTO(createdStandup);
     }
 
     public List<StandupDTO> getAll () {
@@ -47,24 +50,26 @@ public class StandupService {
                 .collect(Collectors.toList());
     }
 
-    public List<StandupEntity> getAllByUserId(Long userId) {
+    public List<StandupDTO> getAllByUserId(Long userId) {
         List<StandupEntity> standups = standupRepo.findByUserId(userId);
-        return standups;
+        return standups.stream()
+                .map(StandupDTO::new) // Использование конструктора DTO
+                .collect(Collectors.toList());
     }
 
-    public Optional<StandupEntity> getByName (String name) throws StandupNotFound {
+    public Optional<StandupDTO> getByName (String name) throws StandupNotFound {
         Optional<StandupEntity> standupEntity = standupRepo.findByName(name);
         if (standupEntity.isPresent()) {
-            return standupEntity;
+            return Optional.of(new StandupDTO(standupEntity));
         } else {
             throw new StandupNotFound("Standup not found");
         }
     }
 
-    public Optional<StandupEntity> getById (Long id) throws StandupNotFound {
-        Optional<StandupEntity> optionalStandup = standupRepo.findById(id);
-        if (optionalStandup.isPresent()) {
-            return optionalStandup;
+    public Optional<StandupDTO> getById (Long id) throws StandupNotFound {
+        Optional<StandupEntity> standupEntity = standupRepo.findById(id);
+        if (standupEntity.isPresent()) {
+            return Optional.of(new StandupDTO(standupEntity));
         } else {
             throw new StandupNotFound("Standup not found");
         }

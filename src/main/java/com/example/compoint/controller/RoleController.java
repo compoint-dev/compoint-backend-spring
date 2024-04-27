@@ -5,12 +5,13 @@ import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleAlreadyExist;
 import com.example.compoint.service.RoleService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RestController

@@ -1,11 +1,9 @@
 package com.example.compoint.controller;
 
-import com.example.compoint.config.UserDetailsImpl;
-import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
-import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.UserAlreadyExist;
+import com.example.compoint.exception.UserNotAuthorized;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -26,7 +23,7 @@ public class UserController {
 
     private final UserService userService;
 
-    //Создаем нового юзера
+    // Create a new user
     @PostMapping("/create")
     public ResponseEntity createUser(@RequestBody UserEntity user){
         try {
@@ -38,7 +35,7 @@ public class UserController {
         }
     }
 
-    //Получаем всех пользователей
+    // Retrieve all users
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity getAllUsers() {
@@ -46,7 +43,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    //Получаем пользователя по id
+    // Retrieve a user by id
     @GetMapping("/{userId}")
     @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
     public ResponseEntity getUserById(@PathVariable Long userId) {
@@ -57,7 +54,7 @@ public class UserController {
         }
     }
 
-    //Получаем пользователя по username
+    // Retrieve a user by username
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity getUserByUsername(@RequestParam String username) {
@@ -68,6 +65,7 @@ public class UserController {
         }
     }
 
+    // Update user data
     @PutMapping("/{userId}/update")
     @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
     public ResponseEntity updateUser(@PathVariable Long userId, @RequestBody UserEntity user){
@@ -80,6 +78,7 @@ public class UserController {
         }
     }
 
+    // Delete a user by id
     @DeleteMapping("/{id}/delete")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity deleteUser(@PathVariable Long id){
@@ -87,6 +86,15 @@ public class UserController {
             return ResponseEntity.ok(userService.delete(id));
         } catch (UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(Authentication authentication) {
+        try {
+            return ResponseEntity.ok(userService.getCurrentUser(authentication));
+        }  catch (UserNotAuthorized e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 

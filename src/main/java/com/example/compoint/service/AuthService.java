@@ -6,10 +6,9 @@ import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.UserRepo;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -38,6 +37,4 @@ public class AuthService {
 
         userRepo.save(user);
     }
-
-
 }

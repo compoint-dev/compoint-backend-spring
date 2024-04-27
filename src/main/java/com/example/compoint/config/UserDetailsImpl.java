@@ -1,7 +1,10 @@
 package com.example.compoint.config;
 
 import com.example.compoint.entity.UserEntity;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,27 +12,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@Getter
+@AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
+
     private final String username;
     private final String password;
-    @Getter
     private final Long id;
-
     private final Collection<? extends GrantedAuthority> authorities;
 
-
-    public UserDetailsImpl(UserEntity user, Long id) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().toUpperCase()))
-                .collect(Collectors.toList());
-        this.id = id;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+    public static UserDetailsImpl fromUserEntity(UserEntity user) {
+        return new UserDetailsImpl(
+                user.getUsername(),
+                user.getPassword(),
+                user.getId(),
+                user.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority(role.getName().toUpperCase()))
+                        .collect(Collectors.toList())
+        );
     }
 
     @Override

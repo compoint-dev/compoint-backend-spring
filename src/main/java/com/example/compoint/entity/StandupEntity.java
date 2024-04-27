@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 @Entity
-@Table(name = "standups")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "standups")
 public class StandupEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,4 +33,5 @@ public class StandupEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
 }
