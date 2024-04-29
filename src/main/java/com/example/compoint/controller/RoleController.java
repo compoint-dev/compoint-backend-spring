@@ -24,7 +24,7 @@ public class RoleController {
     // Create a new role
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity createNewRole(@RequestBody RoleEntity role) {
+    public ResponseEntity<?> createNewRole(@RequestBody RoleEntity role) {
         try {
             roleService.create(role);
             return ResponseEntity.ok("Role created");
@@ -36,7 +36,7 @@ public class RoleController {
     // Retrieve the list of all roles
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity getAllRoles() {
+    public ResponseEntity<?> getAllRoles() {
         List<RoleEntity> roles = roleService.getAll();
         return ResponseEntity.ok(roles);
     }
@@ -44,7 +44,7 @@ public class RoleController {
     // Assign a role to a specific user
     @PostMapping("/{userId}/assign")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity assignRoleToUser(@PathVariable Long userId, @RequestBody RoleEntity role) {
+    public ResponseEntity<?> assignRoleToUser(@PathVariable Long userId, @RequestBody RoleEntity role) {
         UserEntity user = roleService.assignRoleToUser(userId, role);
         return ResponseEntity.ok(user);
     }

@@ -24,7 +24,13 @@ public class CommentEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @ManyToOne
+    @JoinColumn(name = "standup_id")
+    private StandupEntity standup;
+
     private String comment;
+
+    private Long rating;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

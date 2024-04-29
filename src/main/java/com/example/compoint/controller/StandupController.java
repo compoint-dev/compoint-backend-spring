@@ -1,5 +1,6 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.dtos.StandupDTO;
 import com.example.compoint.entity.LanguageEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.exception.AccessDenied;
@@ -24,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -42,7 +44,7 @@ public class StandupController {
 
     // Create a new standup where {id} must be equal to userId
     @PostMapping("/{userId}/create")
-    public ResponseEntity createStandup(
+    public ResponseEntity<?> createStandup(
             @PathVariable Long userId,
             @RequestParam("file") MultipartFile file,
             @RequestParam("name") String name,
@@ -73,7 +75,7 @@ public class StandupController {
 
     // Retrieve the list of all standups
     @GetMapping("/all")
-    public ResponseEntity getAllStandups() {
+    public ResponseEntity<?> getAllStandups() {
         try {
             return ResponseEntity.ok(standupService.getAll());
         } catch (Exception e) {
@@ -83,8 +85,8 @@ public class StandupController {
 
     // Retrieve the list of all standups for a specific user
     @GetMapping("/{userId}/all")
-    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
-    public ResponseEntity getAllStandupsByUserId(@PathVariable Long userId) {
+//    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
+    public ResponseEntity<?> getAllStandupsByUserId(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(standupService.getAllByUserId(userId));
         } catch (Exception e) {
@@ -94,8 +96,8 @@ public class StandupController {
 
     // Retrieve a specific standup by id
     @GetMapping("/{standupId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity getStandupById(@PathVariable Long standupId) {
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> getStandupById(@PathVariable Long standupId) {
         try {
             return ResponseEntity.ok(standupService.getById(standupId));
         } catch (StandupNotFound e) {
@@ -105,8 +107,8 @@ public class StandupController {
 
     // Retrieve a specific standup by name
     @GetMapping("/search")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity getStandupByName(@RequestParam String name) {
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> getStandupByName(@RequestParam String name) {
         try {
             return ResponseEntity.ok(standupService.getByName(name));
         } catch (StandupNotFound e) {
@@ -114,10 +116,40 @@ public class StandupController {
         }
     }
 
+    @GetMapping("/top-day")
+    public ResponseEntity<?> getTopDayStandup() {
+        try {
+            List<StandupDTO> topStandups = standupService.getTopDay();
+            return ResponseEntity.ok(topStandups);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/top-month")
+    public ResponseEntity<?> getTopMonthStandup() {
+        try {
+            List<StandupDTO> topStandups = standupService.getTopMonth();
+            return ResponseEntity.ok(topStandups);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/top-year")
+    public ResponseEntity<?> getTopYearStandup() {
+        try {
+            List<StandupDTO> topStandups = standupService.getTopYear();
+            return ResponseEntity.ok(topStandups);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     //TODO: ДОДЕЛАТЬ ЛОГИКУ
     @PutMapping("/{id}/update")
-    @PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
-    public ResponseEntity updateStandup(@PathVariable Long id, @RequestBody StandupEntity standup){
+//    @PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
+    public ResponseEntity<?> updateStandup(@PathVariable Long id, @RequestBody StandupEntity standup){
         try {
             return ResponseEntity.ok(standupService.update(id, standup));
         } catch (StandupNotFound e) {
@@ -128,8 +160,8 @@ public class StandupController {
     }
 
     // Delete a standup by id
-    @DeleteMapping("/{standupId}/delete")
-    public ResponseEntity deleteStandup(@PathVariable Long standupId){
+//    @DeleteMapping("/{standupId}/delete")
+    public ResponseEntity<?> deleteStandup(@PathVariable Long standupId){
         try {
             return ResponseEntity.ok(standupService.delete(standupId));
         } catch (StandupNotFound e) {

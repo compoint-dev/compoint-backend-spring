@@ -15,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -102,5 +103,24 @@ public class StandupService {
     }
 
 
+    public List<StandupDTO> getTopMonth() {
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+        return standupRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneMonthAgo).stream()
+                .map(StandupDTO::new)
+                .collect(Collectors.toList());
+    }
 
+    public List<StandupDTO> getTopDay() {
+        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
+        return standupRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneDayAgo).stream()
+                .map(StandupDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<StandupDTO> getTopYear() {
+        LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
+        return standupRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneYearAgo).stream()
+                .map(StandupDTO::new)
+                .collect(Collectors.toList());
+    }
 }

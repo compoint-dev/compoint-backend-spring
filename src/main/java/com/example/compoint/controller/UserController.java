@@ -25,7 +25,7 @@ public class UserController {
 
     // Create a new user
     @PostMapping("/create")
-    public ResponseEntity createUser(@RequestBody UserEntity user){
+    public ResponseEntity<?> createUser(@RequestBody UserEntity user){
         try {
             return ResponseEntity.ok(userService.create(user));
         } catch (UserAlreadyExist e) {
@@ -38,7 +38,7 @@ public class UserController {
     // Retrieve all users
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity getAllUsers() {
+    public ResponseEntity<?> getAllUsers() {
         List<UserEntity> users = userService.getAll();
         return ResponseEntity.ok(users);
     }
@@ -46,7 +46,7 @@ public class UserController {
     // Retrieve a user by id
     @GetMapping("/{userId}")
     @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
-    public ResponseEntity getUserById(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(userService.getById(userId));
         } catch (UserNotFound e) {
@@ -57,7 +57,7 @@ public class UserController {
     // Retrieve a user by username
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity getUserByUsername(@RequestParam String username) {
+    public ResponseEntity<?> getUserByUsername(@RequestParam String username) {
         try {
             return ResponseEntity.ok(userService.getByUsername(username));
         } catch (UserNotFound e) {
@@ -68,7 +68,7 @@ public class UserController {
     // Update user data
     @PutMapping("/{userId}/update")
     @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
-    public ResponseEntity updateUser(@PathVariable Long userId, @RequestBody UserEntity user){
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserEntity user){
         try {
             return ResponseEntity.ok(userService.update(userId, user));
         } catch (UserNotFound e) {
@@ -81,7 +81,7 @@ public class UserController {
     // Delete a user by id
     @DeleteMapping("/{id}/delete")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity deleteUser(@PathVariable Long id){
+    public ResponseEntity<?> deleteUser(@PathVariable Long id){
         try {
             return ResponseEntity.ok(userService.delete(id));
         } catch (UserNotFound e) {
@@ -100,7 +100,7 @@ public class UserController {
 
     @GetMapping("/info")
     @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('USER')")
-    public ResponseEntity<String> userData(Principal principal) {
+    public ResponseEntity<?> userData(Principal principal) {
         return ResponseEntity.ok(principal.getName());
     }
 
