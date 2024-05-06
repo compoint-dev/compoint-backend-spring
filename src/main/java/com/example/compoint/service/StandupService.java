@@ -9,6 +9,7 @@ import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.repository.StandupRepo;
+import com.example.compoint.repository.WatchLaterRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +26,7 @@ public class StandupService {
 
     @Autowired
     private StandupRepo standupRepo;
+    private WatchLaterRepo watchLaterRepo;
 
     @Autowired
     private UserService userService;
@@ -102,7 +104,6 @@ public class StandupService {
         return "Standup with ID " + id + " has been deleted successfully";
     }
 
-
     public List<StandupDTO> getTopMonth() {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
         return standupRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneMonthAgo).stream()
@@ -123,4 +124,5 @@ public class StandupService {
                 .map(StandupDTO::new)
                 .collect(Collectors.toList());
     }
+
 }

@@ -1,5 +1,6 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.dtos.StandupDTO;
 import com.example.compoint.entity.LanguageEntity;
 import com.example.compoint.entity.StandupEntity;
@@ -10,10 +11,12 @@ import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.LanguageService;
 import com.example.compoint.service.StandupService;
 
+import com.example.compoint.service.WatchLaterService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,14 +39,14 @@ public class StandupController {
     private String UPLOAD_DIR;
     private final StandupService standupService;
     private final LanguageService languageService;
-
-    public StandupController(StandupService standupService, LanguageService languageService) {
+    private final WatchLaterService watchLaterService;
+    public StandupController(StandupService standupService, LanguageService languageService, WatchLaterService watchLaterService) {
         this.standupService = standupService;
         this.languageService = languageService;
+        this.watchLaterService = watchLaterService;
     }
 
-    // Create a new standup where {id} must be equal to userId
-    @PostMapping("/{userId}/create")
+    @PostMapping("/{userId}")
     public ResponseEntity<?> createStandup(
             @PathVariable Long userId,
             @RequestParam("file") MultipartFile file,
@@ -73,8 +76,7 @@ public class StandupController {
         }
     }
 
-    // Retrieve the list of all standups
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<?> getAllStandups() {
         try {
             return ResponseEntity.ok(standupService.getAll());
@@ -83,8 +85,7 @@ public class StandupController {
         }
     }
 
-    // Retrieve the list of all standups for a specific user
-    @GetMapping("/{userId}/all")
+    @GetMapping("/user/{userId}")
 //    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
     public ResponseEntity<?> getAllStandupsByUserId(@PathVariable Long userId) {
         try {
@@ -94,7 +95,6 @@ public class StandupController {
         }
     }
 
-    // Retrieve a specific standup by id
     @GetMapping("/{standupId}")
 //    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getStandupById(@PathVariable Long standupId) {
@@ -105,8 +105,7 @@ public class StandupController {
         }
     }
 
-    // Retrieve a specific standup by name
-    @GetMapping("/search")
+    @GetMapping(params = "name")
 //    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getStandupByName(@RequestParam String name) {
         try {
@@ -116,7 +115,7 @@ public class StandupController {
         }
     }
 
-    @GetMapping("/top-day")
+    @GetMapping("/top/day")
     public ResponseEntity<?> getTopDayStandup() {
         try {
             List<StandupDTO> topStandups = standupService.getTopDay();
@@ -126,7 +125,7 @@ public class StandupController {
         }
     }
 
-    @GetMapping("/top-month")
+    @GetMapping("/top/month")
     public ResponseEntity<?> getTopMonthStandup() {
         try {
             List<StandupDTO> topStandups = standupService.getTopMonth();
@@ -136,7 +135,7 @@ public class StandupController {
         }
     }
 
-    @GetMapping("/top-year")
+    @GetMapping("/top/year")
     public ResponseEntity<?> getTopYearStandup() {
         try {
             List<StandupDTO> topStandups = standupService.getTopYear();
@@ -147,7 +146,7 @@ public class StandupController {
     }
 
     //TODO: ДОДЕЛАТЬ ЛОГИКУ
-    @PutMapping("/{id}/update")
+    @PutMapping("/{standupId}")
 //    @PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
     public ResponseEntity<?> updateStandup(@PathVariable Long id, @RequestBody StandupEntity standup){
         try {
@@ -159,8 +158,7 @@ public class StandupController {
         }
     }
 
-    // Delete a standup by id
-//    @DeleteMapping("/{standupId}/delete")
+    @DeleteMapping("/{standupId}")
     public ResponseEntity<?> deleteStandup(@PathVariable Long standupId){
         try {
             return ResponseEntity.ok(standupService.delete(standupId));
@@ -168,6 +166,29 @@ public class StandupController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (AccessDenied e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("{standupId}/watch-later")
+    public ResponseEntity<?> addToWatchLater(@PathVariable Long standupId, Authentication authentication) {
+        try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            watchLaterService.addToWatchLater(standupId, userDetails.getId());
+            return ResponseEntity.ok("Marked as watchlater");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("{standupId}/watch-later")
+    public ResponseEntity<?> removeFromWatchLater(@PathVariable Long standupId, Authentication authentication) {
+        try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            return ResponseEntity.ok( watchLaterService.removeFromWatchLater(standupId, userDetails.getId()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

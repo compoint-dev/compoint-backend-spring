@@ -23,8 +23,7 @@ public class UserController {
 
     private final UserService userService;
 
-    // Create a new user
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createUser(@RequestBody UserEntity user){
         try {
             return ResponseEntity.ok(userService.create(user));
@@ -35,17 +34,15 @@ public class UserController {
         }
     }
 
-    // Retrieve all users
-    @GetMapping("/all")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
         List<UserEntity> users = userService.getAll();
         return ResponseEntity.ok(users);
     }
 
-    // Retrieve a user by id
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
+//    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(userService.getById(userId));
@@ -54,9 +51,8 @@ public class UserController {
         }
     }
 
-    // Retrieve a user by username
-    @GetMapping("/search")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping(params = "username")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getUserByUsername(@RequestParam String username) {
         try {
             return ResponseEntity.ok(userService.getByUsername(username));
@@ -65,9 +61,8 @@ public class UserController {
         }
     }
 
-    // Update user data
-    @PutMapping("/{userId}/update")
-    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
+    @PutMapping("/{userId}")
+//    @PreAuthorize("hasAuthority('ADMIN') or #userId == principal.id")
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserEntity user){
         try {
             return ResponseEntity.ok(userService.update(userId, user));
@@ -78,9 +73,8 @@ public class UserController {
         }
     }
 
-    // Delete a user by id
-    @DeleteMapping("/{id}/delete")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{userId}")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         try {
             return ResponseEntity.ok(userService.delete(id));
@@ -99,7 +93,7 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('USER')")
+//    @PreAuthorize("hasAuthority('ADMIN') OR hasAuthority('USER')")
     public ResponseEntity<?> userData(Principal principal) {
         return ResponseEntity.ok(principal.getName());
     }

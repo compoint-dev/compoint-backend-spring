@@ -19,7 +19,7 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    @PostMapping("/{standupId}/users/{userId}/comments")
+    @PostMapping("/{standupId}/user/{userId}/comments")
     public ResponseEntity<?> createComment(@PathVariable Long standupId, @PathVariable Long userId, @RequestBody CommentEntity comment) {
         try {
             commentService.create(standupId, userId, comment);
