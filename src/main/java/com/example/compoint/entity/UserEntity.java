@@ -1,5 +1,6 @@
 package com.example.compoint.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -17,6 +18,7 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the User")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -37,5 +39,6 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Roles are assigned internally, not provided by client")
     private Set<RoleEntity> roles = new HashSet<>();
 }

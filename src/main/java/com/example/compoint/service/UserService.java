@@ -29,21 +29,18 @@ public class UserService {
 
     public UserEntity create(UserEntity user) throws UserAlreadyExist, RoleNotFound {
 
-        //Проверяет на дубликат юзера
         Optional<UserEntity> optionalUser = userRepo.findByUsername(user.getUsername());
         if (optionalUser.isPresent()) {
             throw new UserAlreadyExist("User already exists");
         }
 
-        //Шифруем пароль
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        //Проверяет на наличие роли для юзера
         Optional<RoleEntity> optionalRole = roleRepo.findByName("USER");
         if (optionalRole.isEmpty()) {
             throw new RoleNotFound("Role 'USER' not found");
         }
-        //Присваиваем роль "USER" для нового юзера
+
         user.getRoles().add(optionalRole.get());
 
         return userRepo.save(user);
@@ -79,16 +76,13 @@ public class UserService {
             throw new UserNotFound("User not found");
         }
 
-        // Получаем найденого юзера
         UserEntity existingUser = optionalUser.get();
 
-        // Проверяем что username свободен и не равен нашему
         Optional<UserEntity> optionalNewInfo = userRepo.findByUsername(user.getUsername());
         if (optionalNewInfo.isPresent() && !optionalNewInfo.get().getId().equals(existingUser.getId())) {
             throw new UserAlreadyExist("Username already taken");
         }
 
-        // Обновляем данные пользователя
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
         existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -101,17 +95,13 @@ public class UserService {
             throw new UserNotFound("User not found");
         }
 
-        //Получаем юзера
         UserEntity user = optionalUser.get();
 
-        //Ищем все стендапы удаляемого юзера
         List<StandupEntity> standups = standupRepo.findByUserId(user.getId());
-            // Удаляем все стендапы удаляемого юзера
             for (StandupEntity standup : standups) {
                 standupRepo.deleteById(standup.getId());
             }
 
-        // Удаление самого юзера
         userRepo.deleteById(id);
         return "User with ID " + id + " has been deleted successfully";
     }

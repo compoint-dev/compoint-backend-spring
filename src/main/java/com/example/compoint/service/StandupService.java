@@ -49,14 +49,14 @@ public class StandupService {
     public List<StandupDTO> getAll () {
         List<StandupEntity> standups = (List<StandupEntity>) standupRepo.findAll();
         return standups.stream()
-                .map(StandupDTO::new) // Использование конструктора DTO
+                .map(StandupDTO::new)
                 .collect(Collectors.toList());
     }
 
     public List<StandupDTO> getAllByUserId(Long userId) {
         List<StandupEntity> standups = standupRepo.findByUserId(userId);
         return standups.stream()
-                .map(StandupDTO::new) // Использование конструктора DTO
+                .map(StandupDTO::new)
                 .collect(Collectors.toList());
     }
 

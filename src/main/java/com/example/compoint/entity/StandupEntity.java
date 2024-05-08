@@ -1,5 +1,6 @@
 package com.example.compoint.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,11 +18,19 @@ import java.util.Set;
 public class StandupEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the User")
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String name;
+
     private String description;
+
     private BigDecimal price;
+
     private String imagePath;
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Rating are assigned internally, not provided by client")
     private Integer rating;
 
     @ManyToMany
@@ -38,6 +47,7 @@ public class StandupEntity {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "CreatedAt are assigned internally, not provided by client")
     private LocalDateTime createdAt;
 
 }

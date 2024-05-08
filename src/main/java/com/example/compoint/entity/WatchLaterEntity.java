@@ -1,5 +1,6 @@
 package com.example.compoint.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class WatchLaterEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the WatchLater")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,5 +33,6 @@ public class WatchLaterEntity {
 
     @CreationTimestamp
     @Column(name = "added_at", nullable = false, updatable = false)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "CreatedAt are assigned internally, not provided by client")
     private LocalDateTime addedAt;
 }

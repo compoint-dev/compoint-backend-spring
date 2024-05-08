@@ -1,6 +1,5 @@
 package com.example.compoint.repository;
 
-import com.example.compoint.dtos.CommentDTO;
 import com.example.compoint.entity.CommentEntity;
 import org.springframework.data.repository.CrudRepository;
 
