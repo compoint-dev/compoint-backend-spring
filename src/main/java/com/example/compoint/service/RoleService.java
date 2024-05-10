@@ -1,8 +1,14 @@
 package com.example.compoint.service;
 
+import com.example.compoint.dtos.RoleDTO;
+import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
+import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleAlreadyExist;
+import com.example.compoint.mappers.RoleMapper;
+import com.example.compoint.mappers.StandupMapper;
+import com.example.compoint.mappers.UserMapper;
 import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.UserRepo;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,13 +35,16 @@ public class RoleService {
         roleRepo.save(role);
     }
 
-    public List<RoleEntity> getAll() {
+    public List<RoleDTO> getAll() {
         List<RoleEntity> roles = new ArrayList<>();
         roleRepo.findAll().forEach(roles::add);
-        return roles;
+
+        return roles.stream()
+                .map(RoleMapper.INSTANCE::roleEntityToRoleDTO)
+                .collect(Collectors.toList());
     }
 
-    public UserEntity assignRoleToUser(Long userId, RoleEntity role) throws EntityNotFoundException {
+    public UserDTO assignRoleToUser(Long userId, RoleEntity role) throws EntityNotFoundException {
         Optional<UserEntity> optionalUser = userRepo.findById(userId);
         if (!optionalUser.isPresent()) {
             throw new EntityNotFoundException("User not found with id: " + userId);
@@ -52,6 +62,6 @@ public class RoleService {
             userRepo.save(user);
         }
 
-        return user;
+        return UserMapper.INSTANCE.userEntityToUserDTO(user);
     }
 }

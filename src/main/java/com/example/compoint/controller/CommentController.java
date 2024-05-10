@@ -1,6 +1,7 @@
 package com.example.compoint.controller;
 
 import com.example.compoint.dtos.CommentDTO;
+import com.example.compoint.dtos.CreateCommentDTO;
 import com.example.compoint.entity.CommentEntity;
 import com.example.compoint.exception.CommentNotFound;
 import com.example.compoint.exception.StandupNotFound;
@@ -8,6 +9,8 @@ import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,10 +33,10 @@ public class CommentController {
     public ResponseEntity<?> createComment(
             @Parameter(description = "ID of the standup to comment on") @PathVariable Long standupid,
             @Parameter(description = "ID of the user creating the comment") @PathVariable Long userid,
-            @RequestBody CommentEntity comment) {
+            @RequestBody @Schema(implementation = CreateCommentDTO.class, description = "Comment details") CreateCommentDTO commentDTO) {
         try {
-            commentService.create(standupid, userid, comment);
-            return ResponseEntity.ok("Comment created");
+            CommentDTO createdComment = commentService.create(standupid, userid, commentDTO);
+            return ResponseEntity.ok(createdComment);
         } catch (StandupNotFound | UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

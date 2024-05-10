@@ -1,5 +1,7 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.dtos.RoleDTO;
+import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleAlreadyExist;
@@ -40,7 +42,7 @@ public class RoleController {
     @GetMapping
 //    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllRoles() {
-        List<RoleEntity> roles = roleService.getAll();
+        List<RoleDTO> roles = roleService.getAll();
         return ResponseEntity.ok(roles);
     }
 
@@ -51,7 +53,7 @@ public class RoleController {
 //    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> assignRoleToUser(@Parameter(description = "ID of the user to whom the role is to be assigned") @PathVariable Long userid, @RequestBody RoleEntity role) {
         try {
-            UserEntity user = roleService.assignRoleToUser(userid, role);
+            UserDTO user = roleService.assignRoleToUser(userid, role);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

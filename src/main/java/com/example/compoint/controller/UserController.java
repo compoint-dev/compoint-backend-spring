@@ -1,5 +1,6 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
@@ -43,8 +44,8 @@ public class UserController {
     @Operation(summary = "Retrieve all users", description = "Gets a list of all users")
     @ApiResponse(responseCode = "200", description = "List of users retrieved successfully")
     @GetMapping
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
-        List<UserEntity> users = userService.getAll();
+    public ResponseEntity<?> getAllUsers() {
+        List<UserDTO> users = userService.getAll();
         return ResponseEntity.ok(users);
     }
 

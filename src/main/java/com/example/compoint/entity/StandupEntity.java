@@ -16,6 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "standups")
 public class StandupEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the User")
@@ -33,6 +34,10 @@ public class StandupEntity {
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Rating are assigned internally, not provided by client")
     private Integer rating;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
     @ManyToMany
     @JoinTable(
             name = "standup_languages",
@@ -40,10 +45,6 @@ public class StandupEntity {
             inverseJoinColumns = @JoinColumn(name = "language_id")
     )
     private Set<LanguageEntity> languages;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

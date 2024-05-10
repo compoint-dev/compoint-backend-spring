@@ -3,14 +3,19 @@ package com.example.compoint.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class UserDTO {
+    private Long id;
 
     private String username;
 
-    public UserDTO(String username) {
-        this.username = username;
-    }
+    private String email;
+
+    private String imagePath;
+
+    private Set<RoleDTO> roles;
 
 }

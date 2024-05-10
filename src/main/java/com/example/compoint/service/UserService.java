@@ -1,6 +1,7 @@
 package com.example.compoint.service;
 
 import com.example.compoint.config.UserDetailsImpl;
+import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
@@ -8,6 +9,7 @@ import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotAuthorized;
 import com.example.compoint.exception.UserNotFound;
+import com.example.compoint.mappers.UserMapper;
 import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.StandupRepo;
 import com.example.compoint.repository.UserRepo;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,10 +49,13 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public List<UserEntity> getAll() {
+    public List<UserDTO> getAll() {
         List<UserEntity> users = new ArrayList<>();
         userRepo.findAll().forEach(users::add);
-        return users;
+
+        return users.stream()
+                .map(UserMapper.INSTANCE::userEntityToUserDTO)
+                .collect(Collectors.toList());
     }
 
     public Optional<UserEntity> getById(Long id) throws UserNotFound {

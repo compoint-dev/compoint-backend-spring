@@ -1,11 +1,15 @@
 package com.example.compoint.service;
 
 
+import com.example.compoint.dtos.StandupDTO;
+import com.example.compoint.dtos.UserDTO;
+import com.example.compoint.dtos.WatchLaterDTO;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.entity.WatchLaterEntity;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
+import com.example.compoint.mappers.WatchLaterMapper;
 import com.example.compoint.repository.StandupRepo;
 import com.example.compoint.repository.UserRepo;
 import com.example.compoint.repository.WatchLaterRepo;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class WatchLaterService {
+
     @Autowired
     private WatchLaterRepo watchLaterRepo;
 
@@ -23,7 +28,7 @@ public class WatchLaterService {
     @Autowired
     private StandupRepo standupRepo;
 
-    public WatchLaterEntity addToWatchLater(Long standupId, Long userId) throws Exception {
+    public WatchLaterDTO addToWatchLater(Long standupId, Long userId) throws Exception {
         if (watchLaterRepo.existsByUserIdAndStandupId(userId, standupId)) {
             throw new Exception("This standup is already in the watch later list.");
         }
@@ -35,7 +40,9 @@ public class WatchLaterService {
         watchLater.setUser(user);
         watchLater.setStandup(standup);
 
-        return watchLaterRepo.save(watchLater);
+        watchLater = watchLaterRepo.save(watchLater);
+
+        return WatchLaterMapper.INSTANCE.watchLaterEntityToWatchLaterDTO(watchLater);
     }
 
     //TODO:Проверить на существующий watchlater

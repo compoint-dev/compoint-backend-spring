@@ -166,8 +166,8 @@ public class StandupController {
     @PostMapping("{id}/watch-later")
     public ResponseEntity<?> addToWatchLater(@PathVariable Long id, Authentication authentication) throws Exception {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        watchLaterService.addToWatchLater(id, userDetails.getId());
-        return ResponseEntity.ok("Marked as watchlater");
+
+        return ResponseEntity.ok(watchLaterService.addToWatchLater(id, userDetails.getId()));
     }
 
     @Operation(summary = "Remove from watch later", description = "Removes a standup from the watch later list for the authenticated user.")
