@@ -2,6 +2,7 @@ package com.example.compoint.controller;
 
 import com.example.compoint.dtos.AuthRequestDTO;
 import com.example.compoint.dtos.JwtResponseDTO;
+import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
@@ -50,7 +51,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
         if (authentication.isAuthenticated()) {
-            Optional<UserEntity> user = userService.getByUsername(authRequestDTO.getUsername());
+            Optional<UserDTO> user = userService.getByUsername(authRequestDTO.getUsername());
             String accessToken = jwtService.GenerateToken(user.get().getId(), authRequestDTO.getUsername());
             ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
                     .httpOnly(true)

@@ -2,15 +2,20 @@ package com.example.compoint.service;
 
 import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.dtos.StandupDTO;
+import com.example.compoint.dtos.StandupInfoDTO;
 import com.example.compoint.entity.StandupEntity;
+import com.example.compoint.entity.StandupInfoEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.AccessDenied;
 import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
+import com.example.compoint.mappers.StandupInfoMapper;
 import com.example.compoint.mappers.StandupMapper;
 import com.example.compoint.mappers.UserMapper;
+import com.example.compoint.repository.StandupInfoRepo;
 import com.example.compoint.repository.StandupRepo;
+import com.example.compoint.repository.UserRepo;
 import com.example.compoint.repository.WatchLaterRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -31,24 +36,29 @@ public class StandupService {
     private StandupRepo standupRepo;
 
     @Autowired
-    private UserService userService;
+    private StandupInfoRepo standupInfoRepo;
 
-    public StandupDTO create (StandupEntity standup, Long userId) throws StandupAlreadyExist, UserNotFound {
-        Optional<UserEntity> userOptional = userService.getById(userId);
+    @Autowired
+    private UserRepo userRepo;
+
+    public StandupDTO create(StandupEntity standup, Long userId) throws StandupAlreadyExist, UserNotFound {
+        Optional<UserEntity> userOptional = userRepo.findById(userId);
         UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("User not found"));
 
+        StandupInfoEntity standupInfo = new StandupInfoEntity();
+
         standup.setUser(user);
+        standup.setStandupInfo(standupInfo);
 
         if (standupRepo.findByName(standup.getName()).isPresent()) {
-           throw new StandupAlreadyExist("Standup already exist");
+            throw new StandupAlreadyExist("Standup already exist");
         }
-        standup.setRating(0);
 
         StandupEntity createdStandup = standupRepo.save(standup);
         return StandupMapper.INSTANCE.standupEntityToStandupDTO(createdStandup);
     }
 
-    public List<StandupDTO> getAll () {
+    public List<StandupDTO> getAll() {
         List<StandupEntity> standups = new ArrayList<>();
         standupRepo.findAll().forEach(standups::add);
 
@@ -77,8 +87,9 @@ public class StandupService {
                 .orElseThrow(() -> new StandupNotFound("Standup not found"));
     }
 
-    public StandupEntity update(Long id, StandupEntity standup) throws StandupNotFound, StandupAlreadyExist{
-    return null;
+    //TODO: Доделать
+    public StandupEntity update(Long id, StandupEntity standup) throws StandupNotFound, StandupAlreadyExist {
+        return null;
     }
 
     public String delete(Long id) throws StandupNotFound, AccessDenied {
@@ -103,28 +114,28 @@ public class StandupService {
         return "Standup with ID " + id + " has been deleted successfully";
     }
 
-    public List<StandupDTO> getTopMonth() {
-        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
-
-        return standupRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneMonthAgo).stream()
-                .map(StandupMapper.INSTANCE::standupEntityToStandupDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<StandupDTO> getTopDay() {
-        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
-
-        return standupRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneDayAgo).stream()
-                .map(StandupMapper.INSTANCE::standupEntityToStandupDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<StandupDTO> getTopYear() {
-        LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
-
-        return standupRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneYearAgo).stream()
-                .map(StandupMapper.INSTANCE::standupEntityToStandupDTO)
-                .collect(Collectors.toList());
-    }
+//    public List<StandupInfoDTO> getTopMonth() {
+//        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+//
+//        return standupInfoRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneMonthAgo).stream()
+//                .map(StandupInfoMapper.INSTANCE::standupInfoEntityToStandupInfoDTO)
+//                .collect(Collectors.toList());
+//    }
+//
+//    public List<StandupInfoDTO> getTopDay() {
+//        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
+//
+//        return standupInfoRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneDayAgo).stream()
+//                .map(StandupInfoMapper.INSTANCE::standupInfoEntityToStandupInfoDTO)
+//                .collect(Collectors.toList());
+//    }
+//
+//    public List<StandupInfoDTO> getTopYear() {
+//        LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
+//
+//        return standupInfoRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneYearAgo).stream()
+//                .map(StandupInfoMapper.INSTANCE::standupInfoEntityToStandupInfoDTO)
+//                .collect(Collectors.toList());
+//    }
 
 }

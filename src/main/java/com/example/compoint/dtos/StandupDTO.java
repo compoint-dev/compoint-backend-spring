@@ -17,10 +17,8 @@ public class StandupDTO {
     private String name;
     private String description;
     private BigDecimal price;
-    private String imagePath;
-    private Integer rating;
     private UserDTO user;
-    private Set<LanguageDTO> languages;
     private LocalDateTime createdAt;
+    private StandupInfoDTO standupInfo;
 }
 

@@ -20,5 +20,5 @@ public class LanguageEntity {
     private String name;
 
     @ManyToMany(mappedBy = "languages")
-    private Set<StandupEntity> standups;
+    private Set<StandupInfoEntity> standups;
 }

@@ -2,6 +2,7 @@ package com.example.compoint.controller;
 
 import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.entity.StandupEntity;
+import com.example.compoint.entity.StandupInfoEntity;
 import com.example.compoint.exception.AccessDenied;
 import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.StandupNotFound;
@@ -35,12 +36,10 @@ public class StandupController {
     @Value("${compoint.uploadDir}")
     private String UPLOAD_DIR;
     private final StandupService standupService;
-    private final LanguageService languageService;
     private final WatchLaterService watchLaterService;
 
     public StandupController(StandupService standupService, LanguageService languageService, WatchLaterService watchLaterService) {
         this.standupService = standupService;
-        this.languageService = languageService;
         this.watchLaterService = watchLaterService;
     }
 
@@ -51,26 +50,17 @@ public class StandupController {
     @PostMapping("/{userid}")
     public ResponseEntity<?> createStandup(
             @Parameter(description = "ID of the user creating the standup") @PathVariable Long userid,
-            @Parameter(description = "Image for standup") @RequestParam("file") MultipartFile file,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
-            @RequestParam("price") BigDecimal price,
-            @RequestParam("languages") Set<Long> languages) {
+            @RequestParam("price") BigDecimal price) {
         try {
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-            Path targetLocation = Paths.get(UPLOAD_DIR + fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             StandupEntity standup = new StandupEntity();
             standup.setName(name);
             standup.setDescription(description);
             standup.setPrice(price);
-            standup.setImagePath(targetLocation.toString());
-            standup.setLanguages(languageService.getLanguagesByIds(languages));
 
             return ResponseEntity.ok(standupService.create(standup, userid));
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (StandupAlreadyExist | UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -114,26 +104,26 @@ public class StandupController {
         }
     }
 
-    @Operation(summary = "Retrieve top standups of the day", description = "Retrieves the top standups of the current day.")
-    @ApiResponse(responseCode = "200", description = "Top standups of the day retrieved successfully")
-    @GetMapping("/top/day")
-    public ResponseEntity<?> getTopDayStandup() {
-        return ResponseEntity.ok(standupService.getTopDay());
-    }
-
-    @Operation(summary = "Retrieve top standups of the month", description = "Retrieves the top standups of the current month.")
-    @ApiResponse(responseCode = "200", description = "Top standups of the month retrieved successfully")
-    @GetMapping("/top/month")
-    public ResponseEntity<?> getTopMonthStandup() {
-        return ResponseEntity.ok(standupService.getTopMonth());
-    }
-
-    @Operation(summary = "Retrieve top standups of the year", description = "Retrieves the top standups of the current year.")
-    @ApiResponse(responseCode = "200", description = "Top standups of the year retrieved successfully")
-    @GetMapping("/top/year")
-    public ResponseEntity<?> getTopYearStandup() {
-        return ResponseEntity.ok(standupService.getTopYear());
-    }
+//    @Operation(summary = "Retrieve top standups of the day", description = "Retrieves the top standups of the current day.")
+//    @ApiResponse(responseCode = "200", description = "Top standups of the day retrieved successfully")
+//    @GetMapping("/top/day")
+//    public ResponseEntity<?> getTopDayStandup() {
+//        return ResponseEntity.ok(standupService.getTopDay());
+//    }
+//
+//    @Operation(summary = "Retrieve top standups of the month", description = "Retrieves the top standups of the current month.")
+//    @ApiResponse(responseCode = "200", description = "Top standups of the month retrieved successfully")
+//    @GetMapping("/top/month")
+//    public ResponseEntity<?> getTopMonthStandup() {
+//        return ResponseEntity.ok(standupService.getTopMonth());
+//    }
+//
+//    @Operation(summary = "Retrieve top standups of the year", description = "Retrieves the top standups of the current year.")
+//    @ApiResponse(responseCode = "200", description = "Top standups of the year retrieved successfully")
+//    @GetMapping("/top/year")
+//    public ResponseEntity<?> getTopYearStandup() {
+//        return ResponseEntity.ok(standupService.getTopYear());
+//    }
 
     @Operation(summary = "Update a standup", description = "Updates details of an existing standup.")
     @ApiResponse(responseCode = "200", description = "Standup updated successfully")

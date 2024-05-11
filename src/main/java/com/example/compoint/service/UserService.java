@@ -5,6 +5,7 @@ import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
+import com.example.compoint.entity.UserInfoEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotAuthorized;
@@ -30,7 +31,7 @@ public class UserService {
     private final StandupRepo standupRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public UserEntity create(UserEntity user) throws UserAlreadyExist, RoleNotFound {
+    public String create(UserEntity user) throws UserAlreadyExist, RoleNotFound {
 
         Optional<UserEntity> optionalUser = userRepo.findByUsername(user.getUsername());
         if (optionalUser.isPresent()) {
@@ -46,7 +47,11 @@ public class UserService {
 
         user.getRoles().add(optionalRole.get());
 
-        return userRepo.save(user);
+        UserInfoEntity userInfo = new UserInfoEntity();
+        userInfo.setUser(user);
+        user.setUserInfo(userInfo);
+        userRepo.save(user);
+        return "User created";
     }
 
     public List<UserDTO> getAll() {
@@ -58,24 +63,25 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<UserEntity> getById(Long id) throws UserNotFound {
+    public Optional<UserDTO> getById(Long id) throws UserNotFound {
         Optional<UserEntity> optionalUser = userRepo.findById(id);
         if (optionalUser.isPresent()) {
-            return optionalUser;
+            return Optional.ofNullable(UserMapper.INSTANCE.userEntityToUserDTO(optionalUser.get()));
         } else {
             throw new UserNotFound("User not found");
         }
     }
 
-    public Optional<UserEntity> getByUsername(String username) throws UserNotFound {
+    public Optional<UserDTO> getByUsername(String username) throws UserNotFound {
         Optional<UserEntity> optionalUser = userRepo.findByUsername(username);
         if (optionalUser.isPresent()) {
-            return optionalUser;
+            return Optional.ofNullable(UserMapper.INSTANCE.userEntityToUserDTO(optionalUser.get()));
         } else {
             throw new UserNotFound("User not found");
         }
     }
 
+    //TODO: Доделать
     public UserEntity update(Long id, UserEntity user) throws UserNotFound, UserAlreadyExist {
         Optional<UserEntity> optionalUser = userRepo.findById(id);
         if (!optionalUser.isPresent()) {

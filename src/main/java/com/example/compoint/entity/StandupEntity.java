@@ -29,26 +29,16 @@ public class StandupEntity {
 
     private BigDecimal price;
 
-    private String imagePath;
-
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Rating are assigned internally, not provided by client")
-    private Integer rating;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "standup_languages",
-            joinColumns = @JoinColumn(name = "standup_id"),
-            inverseJoinColumns = @JoinColumn(name = "language_id")
-    )
-    private Set<LanguageEntity> languages;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "CreatedAt are assigned internally, not provided by client")
+//    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "CreatedAt are assigned internally, not provided by client")
     private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "standup", cascade = CascadeType.ALL)
+    private StandupInfoEntity standupInfo;
 
 }

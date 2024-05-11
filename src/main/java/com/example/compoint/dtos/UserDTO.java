@@ -1,5 +1,6 @@
 package com.example.compoint.dtos;
 
+import com.example.compoint.entity.UserInfoEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,8 +15,7 @@ public class UserDTO {
 
     private String email;
 
-    private String imagePath;
-
     private Set<RoleDTO> roles;
 
+    private UserInfoDTO userInfo;
 }

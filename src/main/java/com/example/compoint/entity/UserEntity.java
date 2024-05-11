@@ -31,8 +31,6 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
-    private String imagePath;
-
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "user_role",
@@ -41,4 +39,7 @@ public class UserEntity {
     )
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Roles are assigned internally, not provided by client")
     private Set<RoleEntity> roles = new HashSet<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserInfoEntity userInfo;
 }
