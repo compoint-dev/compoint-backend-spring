@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -32,15 +34,14 @@ public class StandupInfoEntity {
 
     private String imagePath;
 
-    @ManyToMany
-    @JoinTable(
-            name = "standup_languages",
-            joinColumns = @JoinColumn(name = "standup_id"),
-            inverseJoinColumns = @JoinColumn(name = "language_id")
-    )
-    private Set<LanguageEntity> languages;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "standup_id", unique = true, nullable = false)
+
+    @OneToOne
+    @JoinColumn(name = "standup_id", referencedColumnName = "id")
     private StandupEntity standup;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+//    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "CreatedAt are assigned internally, not provided by client")
+    private LocalDateTime createdAt;
 }

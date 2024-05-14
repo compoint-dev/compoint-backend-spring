@@ -33,12 +33,16 @@ public class StandupEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-//    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "CreatedAt are assigned internally, not provided by client")
-    private LocalDateTime createdAt;
+    @ManyToMany
+    @JoinTable(
+            name = "standup_languages",
+            joinColumns = @JoinColumn(name = "standup_id"),
+            inverseJoinColumns = @JoinColumn(name = "language_id")
+    )
+    private Set<LanguageEntity> languages;
 
-    @OneToOne(mappedBy = "standup", cascade = CascadeType.ALL)
+
+    @OneToOne(mappedBy = "standup", cascade = CascadeType.ALL, orphanRemoval = true)
     private StandupInfoEntity standupInfo;
 
 }

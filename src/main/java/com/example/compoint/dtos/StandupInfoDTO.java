@@ -4,6 +4,7 @@ import com.example.compoint.entity.LanguageEntity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -22,5 +23,8 @@ public class StandupInfoDTO {
 
     private String imagePath;
 
-    private Set<LanguageDTO> languages;
+
+
+    private LocalDateTime createdAt;
+
 }

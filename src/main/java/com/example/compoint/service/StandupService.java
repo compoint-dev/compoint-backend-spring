@@ -46,6 +46,8 @@ public class StandupService {
         UserEntity user = userOptional.orElseThrow(() -> new UserNotFound("User not found"));
 
         StandupInfoEntity standupInfo = new StandupInfoEntity();
+        standupInfo.setRating(0);
+        standupInfo.setStandup(standup);
 
         standup.setUser(user);
         standup.setStandupInfo(standupInfo);
@@ -114,10 +116,12 @@ public class StandupService {
         return "Standup with ID " + id + " has been deleted successfully";
     }
 
-//    public List<StandupInfoDTO> getTopMonth() {
+//    public List<StandupDTO> getTopMonth() {
 //        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+//        List<StandupInfoEntity> v = standupInfoRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneMonthAgo);
 //
-//        return standupInfoRepo.findTop5ByCreatedAtAfterOrderByRatingDesc(oneMonthAgo).stream()
+//
+//        return v.stream()
 //                .map(StandupInfoMapper.INSTANCE::standupInfoEntityToStandupInfoDTO)
 //                .collect(Collectors.toList());
 //    }

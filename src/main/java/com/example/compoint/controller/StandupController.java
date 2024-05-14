@@ -37,10 +37,11 @@ public class StandupController {
     private String UPLOAD_DIR;
     private final StandupService standupService;
     private final WatchLaterService watchLaterService;
-
-    public StandupController(StandupService standupService, LanguageService languageService, WatchLaterService watchLaterService) {
+    private final LanguageService languageService;
+    public StandupController(StandupService standupService, LanguageService languageService, WatchLaterService watchLaterService, LanguageService languageService1) {
         this.standupService = standupService;
         this.watchLaterService = watchLaterService;
+        this.languageService = languageService1;
     }
 
     @Operation(summary = "Create a new standup", description = "Creates a new standup entry with file upload.")
@@ -52,13 +53,15 @@ public class StandupController {
             @Parameter(description = "ID of the user creating the standup") @PathVariable Long userid,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
-            @RequestParam("price") BigDecimal price) {
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("languages") Set<Long> languages) {
         try {
 
             StandupEntity standup = new StandupEntity();
             standup.setName(name);
             standup.setDescription(description);
             standup.setPrice(price);
+            standup.setLanguages(languageService.getLanguagesByIds(languages));
 
             return ResponseEntity.ok(standupService.create(standup, userid));
         } catch (StandupAlreadyExist | UserNotFound e) {

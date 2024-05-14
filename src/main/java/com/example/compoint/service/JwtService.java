@@ -48,24 +48,34 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
+    public Boolean validateToken(String token) {
+        return !isTokenExpired(token);
+    }
+
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username.equals(userDetails.getUsername()) && validateToken(token));
     }
-
-    public String GenerateToken(Long userId, String username){
+    public String GenerateAccessToken(Long userId, String username){
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        return createToken(claims, username);
+        return createToken(claims, username, (long) (1000*60*1));
     }
 
-    private String createToken(Map<String, Object> claims, String username) {
+    public String GenerateRefreshToken(Long userId, String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        return createToken(claims, username, (long) (1000 * 60 * 60 * 24 * 7)); // Срок - 7 дней
+    }
+
+    private String createToken(Map<String, Object> claims, String username, Long validity) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*1))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+                .setExpiration(new Date(System.currentTimeMillis() + validity))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Key getSignKey() {

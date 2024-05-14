@@ -22,11 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -52,16 +50,29 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
         if (authentication.isAuthenticated()) {
             Optional<UserDTO> user = userService.getByUsername(authRequestDTO.getUsername());
-            String accessToken = jwtService.GenerateToken(user.get().getId(), authRequestDTO.getUsername());
-            ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+            String accessToken = jwtService.GenerateAccessToken(user.get().getId(), authRequestDTO.getUsername());
+            String refreshToken = jwtService.GenerateRefreshToken(user.get().getId(), authRequestDTO.getUsername());
+
+            ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
                     .maxAge(cookieExpiry)
                     .build();
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(604800) // Длительный срок жизни для рефреш токена
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
             return JwtResponseDTO.builder()
                     .accessToken(accessToken)
+                    .refreshToken(refreshToken)
                     .id(user.get().getId())
                     .build();
         } else {
@@ -82,6 +93,41 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (RoleNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Verify token", description = "Verifies the user's token and returns user information if valid.")
+    @ApiResponse(responseCode = "200", description = "Token valid")
+    @ApiResponse(responseCode = "401", description = "Token invalid or expired")
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyToken() throws UserNotFound {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
+            Optional<UserDTO> user = userService.getByUsername(authentication.getName());
+            if (user.isPresent()) {
+                JwtResponseDTO jwtResponseDTO = JwtResponseDTO.builder()
+                        .accessToken(jwtService.GenerateAccessToken(user.get().getId(), user.get().getUsername()))
+                        .id(user.get().getId())
+                        .build();
+                return ResponseEntity.ok(jwtResponseDTO);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token invalid or expired");
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@CookieValue("refreshToken") String refreshToken) {
+        try {
+            if (jwtService.validateToken(refreshToken)) {
+                String username = jwtService.extractUsername(refreshToken);
+                Long userId = Long.parseLong(jwtService.extractClaim(refreshToken, claims -> claims.get("userId").toString()));
+                String newAccessToken = jwtService.GenerateAccessToken(userId, username);
+                return ResponseEntity.ok(new JwtResponseDTO(newAccessToken, null, userId));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
     }
 }
