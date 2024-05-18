@@ -12,6 +12,7 @@ import com.example.compoint.service.JwtService;
 import com.example.compoint.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@Tag(name = "Auth", description = "Operations related to user authentication and authorization")
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
@@ -45,39 +47,40 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Authentication successful")
     @ApiResponse(responseCode = "401", description = "Invalid credentials")
     @PostMapping("/signin")
-    public JwtResponseDTO authenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response) throws UserNotFound {
+    public ResponseEntity<JwtResponseDTO> authenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response) throws UserNotFound {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
         if (authentication.isAuthenticated()) {
             Optional<UserDTO> user = userService.getByUsername(authRequestDTO.getUsername());
-            String accessToken = jwtService.GenerateAccessToken(user.get().getId(), authRequestDTO.getUsername());
-            String refreshToken = jwtService.GenerateRefreshToken(user.get().getId(), authRequestDTO.getUsername());
+            if (user.isPresent()) {
+                String accessToken = jwtService.generateAccessToken(user.get().getId(), authRequestDTO.getUsername());
+                String refreshToken = jwtService.generateRefreshToken(user.get().getId(), authRequestDTO.getUsername());
 
-            ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
-                    .httpOnly(true)
-                    .secure(false)
-                    .path("/")
-                    .maxAge(cookieExpiry)
-                    .build();
+                ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(cookieExpiry)
+                        .build();
 
-            ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-                    .httpOnly(true)
-                    .secure(false)
-                    .path("/")
-                    .maxAge(604800) // Длительный срок жизни для рефреш токена
-                    .build();
+                ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(604800)
+                        .build();
 
-            response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-            response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+                response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+                response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-            return JwtResponseDTO.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .id(user.get().getId())
-                    .build();
-        } else {
-            throw new UsernameNotFoundException("Invalid user request.");
+                return ResponseEntity.ok(JwtResponseDTO.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .id(user.get().getId())
+                        .build());
+            }
         }
+        throw new UsernameNotFoundException("Invalid user request.");
     }
 
     @Operation(summary = "Sign up", description = "Registers a new user.")
@@ -106,7 +109,8 @@ public class AuthController {
             Optional<UserDTO> user = userService.getByUsername(authentication.getName());
             if (user.isPresent()) {
                 JwtResponseDTO jwtResponseDTO = JwtResponseDTO.builder()
-                        .accessToken(jwtService.GenerateAccessToken(user.get().getId(), user.get().getUsername()))
+                        .accessToken(jwtService.generateAccessToken(user.get().getId(), user.get().getUsername()))
+                        .refreshToken(jwtService.generateRefreshToken(user.get().getId(), user.get().getUsername()))
                         .id(user.get().getId())
                         .build();
                 return ResponseEntity.ok(jwtResponseDTO);
@@ -115,19 +119,68 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token invalid or expired");
     }
 
+    @Operation(summary = "Check authentication", description = "Checks the user's authentication status by verifying the access token in cookies.")
+    @ApiResponse(responseCode = "200", description = "User is authenticated")
+    @ApiResponse(responseCode = "401", description = "Invalid or expired token")
+    @GetMapping("/check-auth")
+    public ResponseEntity<?> checkAuth(@CookieValue("accessToken") String accessToken) throws UserNotFound {
+        if (accessToken == null || accessToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No access token provided");
+        }
+
+        if (jwtService.validateToken(accessToken)) {
+            String username = jwtService.extractUsername(accessToken);
+            Optional<UserDTO> user = userService.getByUsername(username);
+
+            if (user.isPresent()) {
+                return ResponseEntity.ok(user.get());
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+    }
+
+    @Operation(summary = "Refresh token", description = "Refreshes the user's access token using the refresh token from cookies.")
+    @ApiResponse(responseCode = "200", description = "Token refreshed successfully")
+    @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(@CookieValue("refreshToken") String refreshToken) {
         try {
             if (jwtService.validateToken(refreshToken)) {
                 String username = jwtService.extractUsername(refreshToken);
                 Long userId = Long.parseLong(jwtService.extractClaim(refreshToken, claims -> claims.get("userId").toString()));
-                String newAccessToken = jwtService.GenerateAccessToken(userId, username);
-                return ResponseEntity.ok(new JwtResponseDTO(newAccessToken, null, userId));
+                String newAccessToken = jwtService.generateAccessToken(userId, username);
+                String newRefreshToken = jwtService.generateRefreshToken(userId, username);
+                return ResponseEntity.ok(new JwtResponseDTO(newAccessToken, newRefreshToken, userId));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }
+    }
+
+    @Operation(summary = "Logout", description = "Logs out the user by clearing cookies.")
+    @ApiResponse(responseCode = "200", description = "Logout successful")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        ResponseCookie deleteAccessTokenCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        ResponseCookie deleteRefreshTokenCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteAccessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteRefreshTokenCookie.toString());
+
+        return ResponseEntity.ok("Logout successful");
     }
 }

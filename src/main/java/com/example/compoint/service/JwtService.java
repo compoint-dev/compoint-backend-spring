@@ -1,25 +1,36 @@
 package com.example.compoint.service;
 
+import com.example.compoint.entity.RefreshTokenEntity;
+import com.example.compoint.repository.RefreshTokenRepo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class JwtService {
+
+    private final RefreshTokenRepo refreshTokenRepo;
 
     @Value("${compoint.jwtSecret}")
     private String SECRET;
+
+    private static final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 60; // 1 hour
+    private static final long REFRESH_TOKEN_VALIDITY = 1000 * 60 * 60 * 24 * 7; // 7 days
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -56,16 +67,37 @@ public class JwtService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && validateToken(token));
     }
-    public String GenerateAccessToken(Long userId, String username){
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        return createToken(claims, username, (long) (1000*60*1));
+
+    public Boolean validateRefreshToken(String token) {
+        Optional<RefreshTokenEntity> refreshTokenOpt = refreshTokenRepo.findByToken(token);
+        if (refreshTokenOpt.isPresent()) {
+            RefreshTokenEntity refreshToken = refreshTokenOpt.get();
+            return !refreshToken.getExpirationDate().before(new Date());
+        }
+        return false;
     }
 
-    public String GenerateRefreshToken(Long userId, String username) {
+    public String generateAccessToken(Long userId, String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        return createToken(claims, username, (long) (1000 * 60 * 60 * 24 * 7)); // Срок - 7 дней
+        return createToken(claims, username, ACCESS_TOKEN_VALIDITY);
+    }
+
+    @Transactional
+    public String generateRefreshToken(Long userId, String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        String token = createToken(claims, username, REFRESH_TOKEN_VALIDITY);
+
+        refreshTokenRepo.deleteByUsername(username);
+
+        RefreshTokenEntity refreshToken = new RefreshTokenEntity();
+        refreshToken.setToken(token);
+        refreshToken.setUsername(username);
+        refreshToken.setExpirationDate(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY));
+        refreshTokenRepo.save(refreshToken);
+
+        return token;
     }
 
     private String createToken(Map<String, Object> claims, String username, Long validity) {
