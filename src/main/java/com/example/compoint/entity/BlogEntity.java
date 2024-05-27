@@ -15,24 +15,21 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "watchlater")
-public class WatchLaterEntity {
-
+@Table(name = "blogs")
+public class BlogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the WatchLater")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the Blog")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(nullable = false)
+    private String content;
+
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "standup_id", nullable = false)
-    private StandupEntity standup;
-
     @CreationTimestamp
-    @Column(name = "added_at", nullable = false, updatable = false)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "AddedAt are assigned internally, not provided by client")
-    private LocalDateTime addedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

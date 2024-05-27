@@ -2,7 +2,6 @@ package com.example.compoint.controller;
 
 import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.entity.StandupEntity;
-import com.example.compoint.entity.StandupInfoEntity;
 import com.example.compoint.exception.AccessDenied;
 import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.StandupNotFound;
@@ -17,16 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Set;
 
 @RestController
@@ -38,6 +30,7 @@ public class StandupController {
     private final StandupService standupService;
     private final WatchLaterService watchLaterService;
     private final LanguageService languageService;
+
     public StandupController(StandupService standupService, LanguageService languageService, WatchLaterService watchLaterService, LanguageService languageService1) {
         this.standupService = standupService;
         this.watchLaterService = watchLaterService;
@@ -50,7 +43,8 @@ public class StandupController {
     @ApiResponse(responseCode = "500", description = "Internal Server Error")
     @PostMapping("/{userid}")
     public ResponseEntity<?> createStandup(
-            @Parameter(description = "ID of the user creating the standup") @PathVariable Long userid,
+            @Parameter(description = "ID of the user creating the standup")
+            @PathVariable Long userid,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("price") BigDecimal price,

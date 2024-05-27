@@ -11,5 +11,6 @@ import java.util.Optional;
 @Repository
 public interface StandupInfoRepo extends CrudRepository<StandupInfoEntity, Long> {
     Optional<StandupInfoEntity> findById(Long id);
+
     List<StandupInfoEntity> findTop5ByCreatedAtAfterOrderByRatingDesc(LocalDateTime dateTime);
 }

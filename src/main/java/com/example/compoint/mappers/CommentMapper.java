@@ -2,9 +2,7 @@ package com.example.compoint.mappers;
 
 import com.example.compoint.dtos.CommentDTO;
 import com.example.compoint.dtos.CreateCommentDTO;
-import com.example.compoint.dtos.LanguageDTO;
 import com.example.compoint.entity.CommentEntity;
-import com.example.compoint.entity.LanguageEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

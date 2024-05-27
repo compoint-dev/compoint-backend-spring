@@ -2,14 +2,12 @@ package com.example.compoint.controller;
 
 import com.example.compoint.dtos.CommentDTO;
 import com.example.compoint.dtos.CreateCommentDTO;
-import com.example.compoint.entity.CommentEntity;
 import com.example.compoint.exception.CommentNotFound;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +87,22 @@ public class CommentController {
             return ResponseEntity.ok("Comment deleted");
         } catch (CommentNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Change rating of a comment", description = "Allows a user to change the rating of a comment.")
+    @ApiResponse(responseCode = "200", description = "Rating updated successfully")
+    @ApiResponse(responseCode = "404", description = "Comment or User not found")
+    @PostMapping("/rating/{commentId}/user/{userId}")
+    public ResponseEntity<?> changeRating(
+            @Parameter(description = "ID of the comment") @PathVariable Long commentId,
+            @Parameter(description = "ID of the user") @PathVariable Long userId,
+            @RequestBody String value) {
+        try {
+            commentService.changeRating(commentId, userId, value);
+            return ResponseEntity.ok("Rating updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

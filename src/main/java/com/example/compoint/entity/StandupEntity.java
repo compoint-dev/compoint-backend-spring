@@ -2,11 +2,12 @@ package com.example.compoint.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -19,7 +20,7 @@ public class StandupEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the User")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the Standup")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -30,7 +31,7 @@ public class StandupEntity {
     private BigDecimal price;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @ManyToMany
@@ -41,8 +42,6 @@ public class StandupEntity {
     )
     private Set<LanguageEntity> languages;
 
-
     @OneToOne(mappedBy = "standup", cascade = CascadeType.ALL, orphanRemoval = true)
     private StandupInfoEntity standupInfo;
-
 }

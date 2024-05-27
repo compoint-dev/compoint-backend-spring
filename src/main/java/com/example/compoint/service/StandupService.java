@@ -2,7 +2,6 @@ package com.example.compoint.service;
 
 import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.dtos.StandupDTO;
-import com.example.compoint.dtos.StandupInfoDTO;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.StandupInfoEntity;
 import com.example.compoint.entity.UserEntity;
@@ -10,20 +9,16 @@ import com.example.compoint.exception.AccessDenied;
 import com.example.compoint.exception.StandupAlreadyExist;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
-import com.example.compoint.mappers.StandupInfoMapper;
 import com.example.compoint.mappers.StandupMapper;
-import com.example.compoint.mappers.UserMapper;
 import com.example.compoint.repository.StandupInfoRepo;
 import com.example.compoint.repository.StandupRepo;
 import com.example.compoint.repository.UserRepo;
-import com.example.compoint.repository.WatchLaterRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

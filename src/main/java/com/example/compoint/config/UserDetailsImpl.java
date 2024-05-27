@@ -1,10 +1,8 @@
 package com.example.compoint.config;
 
 import com.example.compoint.entity.UserEntity;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

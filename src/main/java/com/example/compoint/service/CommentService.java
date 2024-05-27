@@ -3,13 +3,14 @@ package com.example.compoint.service;
 import com.example.compoint.dtos.CommentDTO;
 import com.example.compoint.dtos.CreateCommentDTO;
 import com.example.compoint.entity.CommentEntity;
+import com.example.compoint.entity.CommentRatingEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.CommentNotFound;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.mappers.CommentMapper;
-import com.example.compoint.mappers.StandupMapper;
+import com.example.compoint.repository.CommentRatingRepo;
 import com.example.compoint.repository.CommentRepo;
 import com.example.compoint.repository.StandupRepo;
 import com.example.compoint.repository.UserRepo;
@@ -27,6 +28,7 @@ public class CommentService {
     private final CommentRepo commentRepo;
     private final UserRepo userRepo;
     private final StandupRepo standupRepo;
+    private final CommentRatingRepo commentRatingRepo;
 
     public CommentDTO create(Long standupId, Long userId, CreateCommentDTO createCommentDTO) throws UserNotFound, StandupNotFound {
         Optional<UserEntity> user = userRepo.findById(userId);
@@ -36,12 +38,13 @@ public class CommentService {
         if (user.isPresent() && standup.isPresent()) {
             commentEntity.setUser(user.get());
             commentEntity.setStandup(standup.get());
+            commentEntity.setRating(0);
             commentRepo.save(commentEntity);
         } else {
-            if (user.isPresent() && !standup.isPresent()){
+            if (user.isPresent() && !standup.isPresent()) {
                 throw new StandupNotFound("Standup not found");
             }
-            if (!user.isPresent() && standup.isPresent()){
+            if (!user.isPresent() && standup.isPresent()) {
                 throw new UserNotFound("User not found");
             }
         }
@@ -88,4 +91,52 @@ public class CommentService {
                 .collect(Collectors.toList());
 
     }
+
+    public void changeRating(Long commentId, Long userId, String value) throws Exception {
+        CommentEntity comment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new Exception("Comment not found"));
+
+        CommentRatingEntity commentRating = commentRatingRepo.findByCommentIdAndUserId(commentId, userId)
+                .orElseGet(() -> {
+                    CommentRatingEntity newRating = new CommentRatingEntity();
+                    newRating.setComment(comment);
+                    try {
+                        newRating.setUser(userRepo.findById(userId)
+                                .orElseThrow(() -> new Exception("User not found")));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    return newRating;
+                });
+
+        Integer currentRating = commentRating.getRating();
+
+        switch (value) {
+            case "increase":
+                if (currentRating == 0) {
+                    comment.setRating(comment.getRating() + 1);
+                    commentRating.setRating(1);
+                } else if (currentRating == -1) {
+                    comment.setRating(comment.getRating() + 2);
+                    commentRating.setRating(1);
+                }
+                break;
+            case "decrease":
+                if (currentRating == 0) {
+                    comment.setRating(comment.getRating() - 1);
+                    commentRating.setRating(-1);
+                } else if (currentRating == 1) {
+                    comment.setRating(comment.getRating() - 2);
+                    commentRating.setRating(-1);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid operation");
+        }
+
+        commentRatingRepo.save(commentRating);
+        commentRepo.save(comment);
+    }
+
+
 }

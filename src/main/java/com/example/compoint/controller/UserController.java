@@ -1,6 +1,5 @@
 package com.example.compoint.controller;
 
-import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
@@ -17,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/users")
@@ -31,7 +29,7 @@ public class UserController {
     @ApiResponse(responseCode = "409", description = "User already exists")
     @ApiResponse(responseCode = "404", description = "Role not found")
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserEntity user){
+    public ResponseEntity<?> createUser(@RequestBody UserEntity user) {
         try {
             return ResponseEntity.ok(userService.create(user));
         } catch (UserAlreadyExist e) {
@@ -77,7 +75,7 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "409", description = "User already exists with updated details")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserEntity user){
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserEntity user) {
         try {
             return ResponseEntity.ok(userService.update(id, user));
         } catch (UserNotFound e) {
@@ -91,7 +89,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User deleted successfully")
     @ApiResponse(responseCode = "404", description = "User not found")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id){
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.delete(id));
         } catch (UserNotFound e) {
@@ -106,7 +104,7 @@ public class UserController {
     public ResponseEntity<?> me(Authentication authentication) {
         try {
             return ResponseEntity.ok(userService.getCurrentUser(authentication));
-        }  catch (UserNotAuthorized e) {
+        } catch (UserNotAuthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }

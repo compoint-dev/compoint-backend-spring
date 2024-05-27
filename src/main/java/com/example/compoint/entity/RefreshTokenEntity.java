@@ -19,8 +19,12 @@ public class RefreshTokenEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String token;
-    private String username;
-    private Date expirationDate;
 
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private Date expirationDate;
 }

@@ -110,15 +110,15 @@ public class UserService {
         UserEntity user = optionalUser.get();
 
         List<StandupEntity> standups = standupRepo.findByUserId(user.getId());
-            for (StandupEntity standup : standups) {
-                standupRepo.deleteById(standup.getId());
-            }
+        for (StandupEntity standup : standups) {
+            standupRepo.deleteById(standup.getId());
+        }
 
         userRepo.deleteById(id);
         return "User with ID " + id + " has been deleted successfully";
     }
 
-    public Map<String, Long> getCurrentUser (Authentication authentication) throws UserNotAuthorized {
+    public Map<String, Long> getCurrentUser(Authentication authentication) throws UserNotAuthorized {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new UserNotAuthorized("User not authorized");
         }

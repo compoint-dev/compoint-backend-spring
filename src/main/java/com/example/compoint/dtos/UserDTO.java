@@ -1,6 +1,5 @@
 package com.example.compoint.dtos;
 
-import com.example.compoint.entity.UserInfoEntity;
 import lombok.Getter;
 import lombok.Setter;
 

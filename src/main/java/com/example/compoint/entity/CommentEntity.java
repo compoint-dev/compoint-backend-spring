@@ -20,24 +20,23 @@ public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the User")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the Comment")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @ManyToOne
-    @JoinColumn(name = "standup_id")
+    @JoinColumn(name = "standup_id", nullable = false)
     private StandupEntity standup;
 
+    @Column(nullable = false)
     private String comment;
 
-    private Long rating;
+    private Integer rating;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-
 }

@@ -1,8 +1,6 @@
 package com.example.compoint.service;
 
 
-import com.example.compoint.dtos.StandupDTO;
-import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.dtos.WatchLaterDTO;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;

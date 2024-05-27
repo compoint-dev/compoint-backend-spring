@@ -123,7 +123,7 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "User is authenticated")
     @ApiResponse(responseCode = "401", description = "Invalid or expired token")
     @GetMapping("/check-auth")
-    public ResponseEntity<?> checkAuth(@CookieValue("accessToken") String accessToken) throws UserNotFound {
+    public ResponseEntity<?> checkAuth(@CookieValue(value = "accessToken", required = false) String accessToken) throws UserNotFound {
         if (accessToken == null || accessToken.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No access token provided");
         }
@@ -144,13 +144,35 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Token refreshed successfully")
     @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@CookieValue("refreshToken") String refreshToken) {
+    public ResponseEntity<?> refreshAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No refresh token provided");
+        }
+
         try {
             if (jwtService.validateToken(refreshToken)) {
                 String username = jwtService.extractUsername(refreshToken);
                 Long userId = Long.parseLong(jwtService.extractClaim(refreshToken, claims -> claims.get("userId").toString()));
                 String newAccessToken = jwtService.generateAccessToken(userId, username);
                 String newRefreshToken = jwtService.generateRefreshToken(userId, username);
+
+                ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(cookieExpiry)
+                        .build();
+
+                ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newRefreshToken)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(604800)
+                        .build();
+
+                response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+                response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
                 return ResponseEntity.ok(new JwtResponseDTO(newAccessToken, newRefreshToken, userId));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");

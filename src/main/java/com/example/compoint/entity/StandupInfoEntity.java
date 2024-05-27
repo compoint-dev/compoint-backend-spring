@@ -9,7 +9,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -20,7 +19,7 @@ import java.util.Set;
 public class StandupInfoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the WatchLater")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the StandupInfo")
     private Long id;
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Rating are assigned internally, not provided by client")
@@ -34,14 +33,11 @@ public class StandupInfoEntity {
 
     private String imagePath;
 
-
-
     @OneToOne
-    @JoinColumn(name = "standup_id", referencedColumnName = "id")
+    @JoinColumn(name = "standup_id", referencedColumnName = "id", nullable = false)
     private StandupEntity standup;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-//    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "CreatedAt are assigned internally, not provided by client")
     private LocalDateTime createdAt;
 }

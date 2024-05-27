@@ -3,7 +3,6 @@ package com.example.compoint.controller;
 import com.example.compoint.dtos.RoleDTO;
 import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
-import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleAlreadyExist;
 import com.example.compoint.service.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/roles")
 @RequiredArgsConstructor
-public class RoleController {
+public class    RoleController {
 
     private final RoleService roleService;
 

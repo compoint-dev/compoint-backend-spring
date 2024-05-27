@@ -16,7 +16,7 @@ import lombok.Setter;
 public class UserInfoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the WatchLater")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the UserInfo")
     private Long id;
 
     private String imagePath;

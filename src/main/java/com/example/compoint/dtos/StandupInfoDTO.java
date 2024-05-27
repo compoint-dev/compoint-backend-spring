@@ -1,11 +1,9 @@
 package com.example.compoint.dtos;
 
-import com.example.compoint.entity.LanguageEntity;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -22,7 +20,6 @@ public class StandupInfoDTO {
     private Long views;
 
     private String imagePath;
-
 
 
     private LocalDateTime createdAt;
