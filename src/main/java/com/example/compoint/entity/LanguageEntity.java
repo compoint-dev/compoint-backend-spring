@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -25,5 +26,5 @@ public class LanguageEntity {
     private String name;
 
     @ManyToMany(mappedBy = "languages")
-    private Set<StandupEntity> standups;
+    private Set<StandupInfoEntity> standups = new HashSet<>();
 }

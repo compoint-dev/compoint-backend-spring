@@ -8,7 +8,6 @@ import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//COMPLETED. NO NEED TO REFACTOR 30.05.2024
 @RestController
 @RequestMapping("api/comments")
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class CommentController {
     public ResponseEntity<?> createComment(
             @Parameter(description = "ID of the standup to comment on") @PathVariable Long standupid,
             @Parameter(description = "ID of the user creating the comment") @PathVariable Long userid,
-            @RequestBody @Schema(implementation = CreateCommentDTO.class, description = "Comment details") CreateCommentDTO commentDTO) {
+            @RequestBody CreateCommentDTO commentDTO) {
         try {
             CommentDTO createdComment = commentService.create(standupid, userid, commentDTO);
             return ResponseEntity.ok(createdComment);
@@ -41,10 +41,11 @@ public class CommentController {
     }
 
     @Operation(summary = "Get all comments by standup ID", description = "Retrieves all comments made on a specific standup.")
-    @ApiResponse(responseCode = "200", description = "Comment retrieved successfully")
+    @ApiResponse(responseCode = "200", description = "Comments retrieved successfully")
     @ApiResponse(responseCode = "404", description = "Standup not found")
     @GetMapping("/standup")
-    public ResponseEntity<?> getAllCommentsByStandupId(@Parameter(description = "ID of the standup to retrieve comments for") @RequestParam Long standupid) {
+    public ResponseEntity<?> getAllCommentsByStandupId(
+            @Parameter(description = "ID of the standup to retrieve comments for") @RequestParam Long standupid) {
         try {
             List<CommentDTO> comments = commentService.getByStandupId(standupid);
             return ResponseEntity.ok(comments);
@@ -57,7 +58,8 @@ public class CommentController {
     @ApiResponse(responseCode = "200", description = "Comments retrieved successfully")
     @ApiResponse(responseCode = "404", description = "User not found")
     @GetMapping("/user")
-    public ResponseEntity<?> getAllCommentsByUserId(@Parameter(description = "ID of the user to retrieve comments for") @RequestParam Long userid) {
+    public ResponseEntity<?> getAllCommentsByUserId(
+            @Parameter(description = "ID of the user to retrieve comments for") @RequestParam Long userid) {
         try {
             List<CommentDTO> comments = commentService.getByUserId(userid);
             return ResponseEntity.ok(comments);
@@ -81,7 +83,8 @@ public class CommentController {
     @ApiResponse(responseCode = "200", description = "Comment deleted successfully")
     @ApiResponse(responseCode = "404", description = "Comment not found")
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<?> deleteComment(@Parameter(description = "ID of the comment to delete") @PathVariable Long id) {
+    public ResponseEntity<?> deleteComment(
+            @Parameter(description = "ID of the comment to delete") @PathVariable Long id) {
         try {
             commentService.delete(id);
             return ResponseEntity.ok("Comment deleted");

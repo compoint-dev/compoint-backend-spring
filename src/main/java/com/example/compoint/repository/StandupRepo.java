@@ -12,4 +12,6 @@ public interface StandupRepo extends CrudRepository<StandupEntity, Long> {
     Optional<StandupEntity> findByName(String name);
 
     List<StandupEntity> findByUserId(Long id);
+
+    boolean existsByName(String name);
 }

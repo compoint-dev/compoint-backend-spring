@@ -17,7 +17,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "standups")
 public class StandupEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the Standup")
@@ -33,14 +32,6 @@ public class StandupEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
-
-    @ManyToMany
-    @JoinTable(
-            name = "standup_languages",
-            joinColumns = @JoinColumn(name = "standup_id"),
-            inverseJoinColumns = @JoinColumn(name = "language_id")
-    )
-    private Set<LanguageEntity> languages;
 
     @OneToOne(mappedBy = "standup", cascade = CascadeType.ALL, orphanRemoval = true)
     private StandupInfoEntity standupInfo;

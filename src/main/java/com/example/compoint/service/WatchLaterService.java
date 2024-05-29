@@ -5,6 +5,7 @@ import com.example.compoint.dtos.WatchLaterDTO;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.entity.WatchLaterEntity;
+import com.example.compoint.exception.AlreadyWatchLater;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.mappers.WatchLaterMapper;
@@ -26,13 +27,13 @@ public class WatchLaterService {
     @Autowired
     private StandupRepo standupRepo;
 
-    public WatchLaterDTO addToWatchLater(Long standupId, Long userId) throws Exception {
+    public WatchLaterDTO addToWatchLater(Long standupId, Long userId) throws AlreadyWatchLater, UserNotFound, StandupNotFound {
         if (watchLaterRepo.existsByUserIdAndStandupId(userId, standupId)) {
-            throw new Exception("This standup is already in the watch later list.");
+            throw new AlreadyWatchLater("This standup is already in the watch later list.");
         }
 
-        UserEntity user = userRepo.findById(userId).orElseThrow(() -> new Exception("User not found"));
-        StandupEntity standup = standupRepo.findById(standupId).orElseThrow(() -> new Exception("Standup not found"));
+        UserEntity user = userRepo.findById(userId).orElseThrow(() -> new UserNotFound("User not found"));
+        StandupEntity standup = standupRepo.findById(standupId).orElseThrow(() -> new StandupNotFound("Standup not found"));
 
         WatchLaterEntity watchLater = new WatchLaterEntity();
         watchLater.setUser(user);

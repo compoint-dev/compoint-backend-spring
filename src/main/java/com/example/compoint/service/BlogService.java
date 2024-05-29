@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +36,14 @@ public class BlogService {
         BlogEntity savedBlog = blogRepo.save(blog);
 
         return BlogMapper.INSTANCE.blogEntityToBlogDTO(savedBlog);
+    }
+
+    public List<BlogDTO> getAll() {
+        List<BlogEntity> blogs = new ArrayList<>();
+        blogRepo.findAll().forEach(blogs::add);
+
+        return blogs.stream()
+                .map(BlogMapper.INSTANCE::blogEntityToBlogDTO)
+                .collect(Collectors.toList());
     }
 }

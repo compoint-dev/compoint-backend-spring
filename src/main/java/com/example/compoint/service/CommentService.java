@@ -17,6 +17,7 @@ import com.example.compoint.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,23 +32,16 @@ public class CommentService {
     private final CommentRatingRepo commentRatingRepo;
 
     public CommentDTO create(Long standupId, Long userId, CreateCommentDTO createCommentDTO) throws UserNotFound, StandupNotFound {
-        Optional<UserEntity> user = userRepo.findById(userId);
-        Optional<StandupEntity> standup = standupRepo.findById(standupId);
-        CommentEntity commentEntity = CommentMapper.INSTANCE.createCommentDTOToCommentEntity(createCommentDTO);
+        UserEntity user = userRepo.findById(userId).orElseThrow(() -> new UserNotFound("User not found"));
+        StandupEntity standup = standupRepo.findById(standupId).orElseThrow(() -> new StandupNotFound("Standup not found"));
 
-        if (user.isPresent() && standup.isPresent()) {
-            commentEntity.setUser(user.get());
-            commentEntity.setStandup(standup.get());
-            commentEntity.setRating(0);
-            commentRepo.save(commentEntity);
-        } else {
-            if (user.isPresent() && !standup.isPresent()) {
-                throw new StandupNotFound("Standup not found");
-            }
-            if (!user.isPresent() && standup.isPresent()) {
-                throw new UserNotFound("User not found");
-            }
-        }
+        CommentEntity commentEntity = CommentMapper.INSTANCE.createCommentDTOToCommentEntity(createCommentDTO);
+        commentEntity.setUser(user);
+        commentEntity.setStandup(standup);
+        commentEntity.setRating(0);
+
+        commentRepo.save(commentEntity);
+
         return CommentMapper.INSTANCE.commentEntityToCommentDTO(commentEntity);
     }
 
@@ -84,7 +78,8 @@ public class CommentService {
     }
 
     public List<CommentDTO> getAll() {
-        List<CommentEntity> comments = (List<CommentEntity>) commentRepo.findAll();
+        List<CommentEntity> comments = new ArrayList<>();
+        commentRepo.findAll().forEach(comments::add);
 
         return comments.stream()
                 .map(CommentMapper.INSTANCE::commentEntityToCommentDTO)
@@ -137,6 +132,4 @@ public class CommentService {
         commentRatingRepo.save(commentRating);
         commentRepo.save(comment);
     }
-
-
 }

@@ -14,7 +14,6 @@ public class StandupDTO {
     private String description;
     private BigDecimal price;
     private UserDTO user;
-    private Set<LanguageDTO> languages;
     private StandupInfoDTO standupInfo;
 }
 

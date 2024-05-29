@@ -1,5 +1,6 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.entity.StandupInfoEntity;
 import com.example.compoint.service.StandupInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,16 @@ public class StandupInfoController {
 
     public StandupInfoController(StandupInfoService standupInfoService) {
         this.standupInfoService = standupInfoService;
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateStandupInfo(@PathVariable Long id, @RequestBody StandupInfoEntity standupInfo) {
+        try {
+            return ResponseEntity.ok(standupInfoService.update(id, standupInfo));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+
     }
 
     @PostMapping("/rating/{id}")

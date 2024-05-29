@@ -24,8 +24,8 @@ public class BlogController {
 
     //TODO:Доделать выброс ошибок
     @Operation(summary = "Create a new user", description = "Creates a new blog and returns it")
-    @ApiResponse(responseCode = "200", description = "User created successfully")
-    @ApiResponse(responseCode = "409", description = "User already exists")
+    @ApiResponse(responseCode = "200", description = "Blog created successfully")
+    @ApiResponse(responseCode = "409", description = "Blog already exists")
     @ApiResponse(responseCode = "404", description = "Role not found")
     @PostMapping("/{userid}")
     public ResponseEntity<?> createBlog(@PathVariable Long userid, @RequestBody BlogEntity blogEntity) {
@@ -34,5 +34,12 @@ public class BlogController {
         } catch (UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @Operation(summary = "Get all blogs", description = "Get all blogs and returns it")
+    @ApiResponse(responseCode = "200", description = "List of all blogs retrieved successfully")
+    @GetMapping
+    public ResponseEntity<?> getAllBlogs() {
+        return ResponseEntity.ok(blogService.getAll());
     }
 }
