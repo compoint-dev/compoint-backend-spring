@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests()
                 .requestMatchers("*").permitAll()
-                .requestMatchers("/users/**").authenticated()
+//                .requestMatchers("/users/**").authenticated()
                 .and()
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

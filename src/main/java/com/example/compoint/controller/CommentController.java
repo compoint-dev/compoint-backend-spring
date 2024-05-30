@@ -1,7 +1,7 @@
 package com.example.compoint.controller;
 
-import com.example.compoint.dtos.CommentDTO;
-import com.example.compoint.dtos.CreateCommentDTO;
+import com.example.compoint.dtos.CommentResponse;
+import com.example.compoint.dtos.CommentRequest;
 import com.example.compoint.exception.CommentNotFound;
 import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
@@ -31,9 +31,9 @@ public class CommentController {
     public ResponseEntity<?> createComment(
             @Parameter(description = "ID of the standup to comment on") @PathVariable Long standupid,
             @Parameter(description = "ID of the user creating the comment") @PathVariable Long userid,
-            @RequestBody CreateCommentDTO commentDTO) {
+            @RequestBody CommentRequest commentDTO) {
         try {
-            CommentDTO createdComment = commentService.create(standupid, userid, commentDTO);
+            CommentResponse createdComment = commentService.create(standupid, userid, commentDTO);
             return ResponseEntity.ok(createdComment);
         } catch (StandupNotFound | UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -47,7 +47,7 @@ public class CommentController {
     public ResponseEntity<?> getAllCommentsByStandupId(
             @Parameter(description = "ID of the standup to retrieve comments for") @RequestParam Long standupid) {
         try {
-            List<CommentDTO> comments = commentService.getByStandupId(standupid);
+            List<CommentResponse> comments = commentService.getByStandupId(standupid);
             return ResponseEntity.ok(comments);
         } catch (StandupNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -61,7 +61,7 @@ public class CommentController {
     public ResponseEntity<?> getAllCommentsByUserId(
             @Parameter(description = "ID of the user to retrieve comments for") @RequestParam Long userid) {
         try {
-            List<CommentDTO> comments = commentService.getByUserId(userid);
+            List<CommentResponse> comments = commentService.getByUserId(userid);
             return ResponseEntity.ok(comments);
         } catch (UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

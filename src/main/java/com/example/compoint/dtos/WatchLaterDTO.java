@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class WatchLaterDTO {
     private UserDTO user;
-    private StandupDTO standup;
+    private StandupResponse standup;
     private LocalDateTime addedAt;
 
 }

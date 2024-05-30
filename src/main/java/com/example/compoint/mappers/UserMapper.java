@@ -10,5 +10,5 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     UserDTO userEntityToUserDTO(UserEntity user);
-
+    UserEntity userDTOToUserEntity(UserDTO userDTO);
 }

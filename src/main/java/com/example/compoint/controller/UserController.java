@@ -1,5 +1,6 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.dtos.UserSignupRequest;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
@@ -29,7 +30,7 @@ public class UserController {
     @ApiResponse(responseCode = "409", description = "User already exists")
     @ApiResponse(responseCode = "404", description = "Role not found")
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserEntity user) {
+    public ResponseEntity<?> createUser(@RequestBody UserSignupRequest user) {
         try {
             return ResponseEntity.ok(userService.create(user));
         } catch (UserAlreadyExist e) {

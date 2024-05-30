@@ -1,10 +1,10 @@
 package com.example.compoint.controller;
 
 import com.example.compoint.config.UserDetailsImpl;
-import com.example.compoint.dtos.StandupDTO;
+import com.example.compoint.dtos.StandupRequest;
+import com.example.compoint.dtos.StandupResponse;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.exception.*;
-import com.example.compoint.service.LanguageService;
 import com.example.compoint.service.StandupService;
 import com.example.compoint.service.WatchLaterService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,9 +34,9 @@ public class StandupController {
     @PostMapping("/{userid}")
     public ResponseEntity<?> createStandup(
             @Parameter(description = "ID of the user creating the standup") @PathVariable Long userid,
-            @RequestBody StandupEntity standup) {
+            @RequestBody StandupRequest standup) {
         try {
-            StandupDTO createdStandup = standupService.create(standup, userid);
+            StandupResponse createdStandup = standupService.create(standup, userid);
             return ResponseEntity.ok(createdStandup);
         } catch (StandupAlreadyExist | UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

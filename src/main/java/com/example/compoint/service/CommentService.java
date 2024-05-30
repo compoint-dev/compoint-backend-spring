@@ -1,7 +1,7 @@
 package com.example.compoint.service;
 
-import com.example.compoint.dtos.CommentDTO;
-import com.example.compoint.dtos.CreateCommentDTO;
+import com.example.compoint.dtos.CommentResponse;
+import com.example.compoint.dtos.CommentRequest;
 import com.example.compoint.entity.CommentEntity;
 import com.example.compoint.entity.CommentRatingEntity;
 import com.example.compoint.entity.StandupEntity;
@@ -31,18 +31,18 @@ public class CommentService {
     private final StandupRepo standupRepo;
     private final CommentRatingRepo commentRatingRepo;
 
-    public CommentDTO create(Long standupId, Long userId, CreateCommentDTO createCommentDTO) throws UserNotFound, StandupNotFound {
+    public CommentResponse create(Long standupId, Long userId, CommentRequest createCommentDTO) throws UserNotFound, StandupNotFound {
         UserEntity user = userRepo.findById(userId).orElseThrow(() -> new UserNotFound("User not found"));
         StandupEntity standup = standupRepo.findById(standupId).orElseThrow(() -> new StandupNotFound("Standup not found"));
 
-        CommentEntity commentEntity = CommentMapper.INSTANCE.createCommentDTOToCommentEntity(createCommentDTO);
+        CommentEntity commentEntity = CommentMapper.INSTANCE.commentRequestToCommentEntity(createCommentDTO);
         commentEntity.setUser(user);
         commentEntity.setStandup(standup);
         commentEntity.setRating(0);
 
         commentRepo.save(commentEntity);
 
-        return CommentMapper.INSTANCE.commentEntityToCommentDTO(commentEntity);
+        return CommentMapper.INSTANCE.commentEntityToCommentResponse(commentEntity);
     }
 
     public String delete(Long commentId) throws CommentNotFound {
@@ -55,34 +55,34 @@ public class CommentService {
         return "Comment deleted";
     }
 
-    public List<CommentDTO> getByStandupId(Long standupId) throws StandupNotFound {
+    public List<CommentResponse> getByStandupId(Long standupId) throws StandupNotFound {
         Optional<StandupEntity> optionalStandup = standupRepo.findById(standupId);
         if (!optionalStandup.isPresent()) {
             throw new StandupNotFound("Standup not found");
         }
 
         return commentRepo.findAllByStandupId(standupId).stream()
-                .map(CommentMapper.INSTANCE::commentEntityToCommentDTO)
+                .map(CommentMapper.INSTANCE::commentEntityToCommentResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<CommentDTO> getByUserId(Long userId) throws UserNotFound {
+    public List<CommentResponse> getByUserId(Long userId) throws UserNotFound {
         Optional<UserEntity> optionalUser = userRepo.findById(userId);
         if (!optionalUser.isPresent()) {
             throw new UserNotFound("User not found");
         }
 
         return commentRepo.findAllByUser_Id(userId).stream()
-                .map(CommentMapper.INSTANCE::commentEntityToCommentDTO)
+                .map(CommentMapper.INSTANCE::commentEntityToCommentResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<CommentDTO> getAll() {
+    public List<CommentResponse> getAll() {
         List<CommentEntity> comments = new ArrayList<>();
         commentRepo.findAll().forEach(comments::add);
 
         return comments.stream()
-                .map(CommentMapper.INSTANCE::commentEntityToCommentDTO)
+                .map(CommentMapper.INSTANCE::commentEntityToCommentResponse)
                 .collect(Collectors.toList());
 
     }

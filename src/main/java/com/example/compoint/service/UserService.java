@@ -2,6 +2,7 @@ package com.example.compoint.service;
 
 import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.dtos.UserDTO;
+import com.example.compoint.dtos.UserSignupRequest;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
@@ -31,26 +32,28 @@ public class UserService {
     private final StandupRepo standupRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public String create(UserEntity user) throws UserAlreadyExist, RoleNotFound {
-
-        Optional<UserEntity> optionalUser = userRepo.findByUsername(user.getUsername());
-        if (optionalUser.isPresent()) {
+    public String create(UserSignupRequest userSignupRequest) throws UserAlreadyExist, RoleNotFound {
+        if (userRepo.existsByUsername(userSignupRequest.getUsername())) {
             throw new UserAlreadyExist("User already exists");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(userSignupRequest.getUsername());
+        userEntity.setEmail(userSignupRequest.getEmail());
+        userEntity.setPassword(passwordEncoder.encode(userSignupRequest.getPassword()));
 
         Optional<RoleEntity> optionalRole = roleRepo.findByName("USER");
         if (optionalRole.isEmpty()) {
             throw new RoleNotFound("Role 'USER' not found");
         }
 
-        user.getRoles().add(optionalRole.get());
+        userEntity.getRoles().add(optionalRole.get());
 
         UserInfoEntity userInfo = new UserInfoEntity();
-        userInfo.setUser(user);
-        user.setUserInfo(userInfo);
-        userRepo.save(user);
+        userInfo.setUser(userEntity);
+        userEntity.setUserInfo(userInfo);
+
+        userRepo.save(userEntity);
         return "User created";
     }
 

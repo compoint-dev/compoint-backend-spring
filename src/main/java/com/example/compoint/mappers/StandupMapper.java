@@ -1,6 +1,6 @@
 package com.example.compoint.mappers;
 
-import com.example.compoint.dtos.StandupDTO;
+import com.example.compoint.dtos.StandupResponse;
 import com.example.compoint.entity.StandupEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -9,5 +9,5 @@ import org.mapstruct.factory.Mappers;
 public interface StandupMapper {
     StandupMapper INSTANCE = Mappers.getMapper(StandupMapper.class);
 
-    StandupDTO standupEntityToStandupDTO(StandupEntity standup);
+    StandupResponse standupEntityToStandupDTO(StandupEntity standup);
 }

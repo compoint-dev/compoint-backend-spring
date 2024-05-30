@@ -1,7 +1,8 @@
 package com.example.compoint.service;
 
 import com.example.compoint.config.UserDetailsImpl;
-import com.example.compoint.dtos.StandupDTO;
+import com.example.compoint.dtos.StandupRequest;
+import com.example.compoint.dtos.StandupResponse;
 import com.example.compoint.entity.LanguageEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.StandupInfoEntity;
@@ -41,31 +42,33 @@ public class StandupService {
     @Autowired
     private LanguageService languageService;
 
-    public StandupDTO create(StandupEntity standup, Long userId) throws StandupAlreadyExist, UserNotFound {
+    public StandupResponse create(StandupRequest standup, Long userId) throws StandupAlreadyExist, UserNotFound {
         UserEntity user = userRepo.findById(userId).orElseThrow(() -> new UserNotFound("User not found"));
 
         if (standupRepo.existsByName(standup.getName())) {
             throw new StandupAlreadyExist("Standup already exists");
         }
 
+        //Fill base info
+        StandupEntity standupEntity = new StandupEntity();
+        standupEntity.setName(standup.getName());
+        standupEntity.setDescription(standup.getDescription());
+        standupEntity.setPrice(standup.getPrice());
 
-
+        //Fill additional info
         StandupInfoEntity standupInfo = new StandupInfoEntity();
         Set<LanguageEntity> languages = languageService.getLanguagesByIds(standupInfo.getLanguages().stream().map(LanguageEntity::getId).collect(Collectors.toSet()));
         standupInfo.setRating(0);
         standupInfo.setLanguages(languages);
-        standupInfo.setStandup(standup);
+        standupInfo.setStandup(standupEntity);
 
-        standup.setUser(user);
-        standup.setStandupInfo(standupInfo);
+        standupEntity.setUser(user);
+        standupEntity.setStandupInfo(standupInfo);
 
-
-
-        StandupEntity createdStandup = standupRepo.save(standup);
-        return StandupMapper.INSTANCE.standupEntityToStandupDTO(createdStandup);
+        return StandupMapper.INSTANCE.standupEntityToStandupDTO(standupRepo.save(standupEntity));
     }
 
-    public List<StandupDTO> getAll() {
+    public List<StandupResponse> getAll() {
         List<StandupEntity> standups = new ArrayList<>();
         standupRepo.findAll().forEach(standups::add);
 
@@ -74,7 +77,7 @@ public class StandupService {
                 .collect(Collectors.toList());
     }
 
-    public List<StandupDTO> getAllByUserId(Long userId) throws UserNotFound {
+    public List<StandupResponse> getAllByUserId(Long userId) throws UserNotFound {
         UserEntity user = userRepo.findById(userId).orElseThrow(() -> new UserNotFound("User not found"));
 
         List<StandupEntity> standups = new ArrayList<>();
@@ -84,13 +87,13 @@ public class StandupService {
                 .collect(Collectors.toList());
     }
 
-    public StandupDTO getByName(String name) throws StandupNotFound {
+    public StandupResponse getByName(String name) throws StandupNotFound {
         return standupRepo.findByName(name)
                 .map(StandupMapper.INSTANCE::standupEntityToStandupDTO)
                 .orElseThrow(() -> new StandupNotFound("Standup not found"));
     }
 
-    public StandupDTO getById(Long id) throws StandupNotFound {
+    public StandupResponse getById(Long id) throws StandupNotFound {
         return standupRepo.findById(id)
                 .map(StandupMapper.INSTANCE::standupEntityToStandupDTO)
                 .orElseThrow(() -> new StandupNotFound("Standup not found"));

@@ -1,7 +1,7 @@
 package com.example.compoint.mappers;
 
-import com.example.compoint.dtos.CommentDTO;
-import com.example.compoint.dtos.CreateCommentDTO;
+import com.example.compoint.dtos.CommentResponse;
+import com.example.compoint.dtos.CommentRequest;
 import com.example.compoint.entity.CommentEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,9 +16,9 @@ public interface CommentMapper {
     @Mapping(target = "standup", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "rating", ignore = true)
-    CommentEntity createCommentDTOToCommentEntity(CreateCommentDTO dto);
+    CommentEntity commentRequestToCommentEntity(CommentRequest dto);
 
     @Mapping(source = "user.username", target = "username")
     @Mapping(source = "standup.name", target = "standupName")
-    CommentDTO commentEntityToCommentDTO(CommentEntity comment);
+    CommentResponse commentEntityToCommentResponse(CommentEntity entity);
 }
