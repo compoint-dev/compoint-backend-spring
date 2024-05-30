@@ -21,10 +21,8 @@ import java.util.Set;
 public class StandupInfoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the StandupInfo")
     private Long id;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Rating are assigned internally, not provided by client")
     private Integer rating;
 
     private String genre;

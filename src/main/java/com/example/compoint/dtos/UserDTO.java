@@ -1,12 +1,13 @@
 package com.example.compoint.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserDTO {
     private Long id;
     private String username;

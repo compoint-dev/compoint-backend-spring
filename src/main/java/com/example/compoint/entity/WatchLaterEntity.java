@@ -20,7 +20,6 @@ public class WatchLaterEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the WatchLater")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

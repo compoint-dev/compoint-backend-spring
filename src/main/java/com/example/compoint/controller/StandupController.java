@@ -10,25 +10,23 @@ import com.example.compoint.service.WatchLaterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+//COMPLETED. NO NEED TO REFACTOR 30.05.2024
 @RestController
 @RequestMapping("api/standups")
+@RequiredArgsConstructor
 public class StandupController {
 
     @Value("${compoint.uploadDir}")
     private String UPLOAD_DIR;
     private final StandupService standupService;
     private final WatchLaterService watchLaterService;
-
-    public StandupController(StandupService standupService, WatchLaterService watchLaterService, LanguageService languageService1) {
-        this.standupService = standupService;
-        this.watchLaterService = watchLaterService;
-    }
 
     @Operation(summary = "Create a new standup", description = "Creates a new standup entry.")
     @ApiResponse(responseCode = "200", description = "Standup created successfully")
@@ -66,7 +64,6 @@ public class StandupController {
         } catch (UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
     }
 
     @Operation(summary = "Retrieve a standup by ID", description = "Retrieves details of a specific standup by its ID.")

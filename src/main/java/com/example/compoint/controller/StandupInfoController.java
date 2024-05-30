@@ -2,19 +2,17 @@ package com.example.compoint.controller;
 
 import com.example.compoint.entity.StandupInfoEntity;
 import com.example.compoint.service.StandupInfoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/standupinfo")
+@RequiredArgsConstructor
 public class StandupInfoController {
 
     private final StandupInfoService standupInfoService;
-
-    public StandupInfoController(StandupInfoService standupInfoService) {
-        this.standupInfoService = standupInfoService;
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateStandupInfo(@PathVariable Long id, @RequestBody StandupInfoEntity standupInfo) {

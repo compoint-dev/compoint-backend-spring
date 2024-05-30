@@ -1,14 +1,11 @@
 package com.example.compoint.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class LanguageDTO {
     private String name;
-
-    public LanguageDTO(String name) {
-        this.name = name;
-    }
 }

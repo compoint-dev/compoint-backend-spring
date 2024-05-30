@@ -41,8 +41,7 @@ public class    RoleController {
     @GetMapping
 //    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllRoles() {
-        List<RoleDTO> roles = roleService.getAll();
-        return ResponseEntity.ok(roles);
+        return ResponseEntity.ok(roleService.getAll());
     }
 
     @Operation(summary = "Assign role to user", description = "Assigns a specified role to a user. Only accessible by ADMIN users.")

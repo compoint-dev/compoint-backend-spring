@@ -17,7 +17,6 @@ public class RoleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Auto-generated ID of the Role")
     private Long id;
 
     @Column(nullable = false, unique = true)

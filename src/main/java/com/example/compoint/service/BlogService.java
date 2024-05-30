@@ -3,6 +3,9 @@ package com.example.compoint.service;
 import com.example.compoint.dtos.BlogDTO;
 import com.example.compoint.entity.BlogEntity;
 import com.example.compoint.entity.UserEntity;
+import com.example.compoint.exception.BlogNotFound;
+import com.example.compoint.exception.CommentNotFound;
+import com.example.compoint.exception.StandupNotFound;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.mappers.BlogMapper;
 import com.example.compoint.mappers.StandupMapper;
@@ -45,5 +48,15 @@ public class BlogService {
         return blogs.stream()
                 .map(BlogMapper.INSTANCE::blogEntityToBlogDTO)
                 .collect(Collectors.toList());
+    }
+
+    public String delete(Long id) throws BlogNotFound {
+        Optional<BlogEntity> optionalBlog = blogRepo.findById(id);
+        if (optionalBlog.isPresent()) {
+            blogRepo.delete(optionalBlog.get());
+        } else {
+            throw new BlogNotFound("Comment not found");
+        }
+        return "Comment deleted";
     }
 }

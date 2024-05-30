@@ -1,13 +1,9 @@
 package com.example.compoint.controller;
 
 import com.example.compoint.entity.BlogEntity;
-import com.example.compoint.entity.UserEntity;
-import com.example.compoint.exception.BlogAlreadyExist;
-import com.example.compoint.exception.RoleNotFound;
-import com.example.compoint.exception.UserAlreadyExist;
+import com.example.compoint.exception.BlogNotFound;
 import com.example.compoint.exception.UserNotFound;
 import com.example.compoint.service.BlogService;
-import com.example.compoint.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +18,14 @@ public class BlogController {
 
     private final BlogService blogService;
 
-    //TODO:Доделать выброс ошибок
     @Operation(summary = "Create a new user", description = "Creates a new blog and returns it")
     @ApiResponse(responseCode = "200", description = "Blog created successfully")
     @ApiResponse(responseCode = "409", description = "Blog already exists")
     @ApiResponse(responseCode = "404", description = "Role not found")
     @PostMapping("/{userid}")
-    public ResponseEntity<?> createBlog(@PathVariable Long userid, @RequestBody BlogEntity blogEntity) {
+    public ResponseEntity<?> createBlog(
+            @PathVariable Long userid,
+            @RequestBody BlogEntity blogEntity) {
         try {
             return ResponseEntity.ok(blogService.create(userid, blogEntity));
         } catch (UserNotFound e) {
@@ -41,5 +38,16 @@ public class BlogController {
     @GetMapping
     public ResponseEntity<?> getAllBlogs() {
         return ResponseEntity.ok(blogService.getAll());
+    }
+
+    //TODO: Добавь аннотации
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBlog(
+            @PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(blogService.delete(id));
+        } catch (BlogNotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }
