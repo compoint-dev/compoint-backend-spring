@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class    RoleController {
     @ApiResponse(responseCode = "200", description = "Role created successfully")
     @ApiResponse(responseCode = "409", description = "Role already exists")
     @PostMapping
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createNewRole(@RequestBody RoleEntity role) {
         try {
             roleService.create(role);
@@ -39,7 +40,7 @@ public class    RoleController {
     @Operation(summary = "Get all roles", description = "Retrieves all roles available in the system. Only accessible by ADMIN users.")
     @ApiResponse(responseCode = "200", description = "All roles retrieved successfully")
     @GetMapping
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllRoles() {
         return ResponseEntity.ok(roleService.getAll());
     }
@@ -48,7 +49,7 @@ public class    RoleController {
     @ApiResponse(responseCode = "200", description = "Role assigned to user successfully")
     @ApiResponse(responseCode = "404", description = "User or role not found")
     @PostMapping("/{userid}/assign")
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> assignRoleToUser(@Parameter(description = "ID of the user to whom the role is to be assigned") @PathVariable Long userid, @RequestBody RoleEntity role) {
         try {
             UserDTO user = roleService.assignRoleToUser(userid, role);

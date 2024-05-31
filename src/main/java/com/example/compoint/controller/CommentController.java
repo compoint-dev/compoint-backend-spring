@@ -27,7 +27,7 @@ public class CommentController {
     @Operation(summary = "Create a comment", description = "Creates a new comment on a specific standup by a user.")
     @ApiResponse(responseCode = "200", description = "Comment created successfully")
     @ApiResponse(responseCode = "404", description = "User or Standup not found")
-    @PostMapping("/{standupid}/user/{userid}/comments")
+    @PostMapping("/{standupid}/user/{userid}")
     public ResponseEntity<?> createComment(
             @Parameter(description = "ID of the standup to comment on") @PathVariable Long standupid,
             @Parameter(description = "ID of the user creating the comment") @PathVariable Long userid,
@@ -96,7 +96,7 @@ public class CommentController {
     @Operation(summary = "Change rating of a comment", description = "Allows a user to change the rating of a comment.")
     @ApiResponse(responseCode = "200", description = "Rating updated successfully")
     @ApiResponse(responseCode = "404", description = "Comment or User not found")
-    @PostMapping("/rating/{commentId}/user/{userId}")
+    @PostMapping("/rating/{commentid}/user/{userId}")
     public ResponseEntity<?> changeRating(
             @Parameter(description = "ID of the comment") @PathVariable Long commentId,
             @Parameter(description = "ID of the user") @PathVariable Long userId,
