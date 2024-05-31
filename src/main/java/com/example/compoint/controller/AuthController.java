@@ -1,8 +1,6 @@
 package com.example.compoint.controller;
 
-import com.example.compoint.dtos.AuthRequestDTO;
-import com.example.compoint.dtos.JwtResponseDTO;
-import com.example.compoint.dtos.UserDTO;
+import com.example.compoint.dtos.*;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
@@ -51,7 +49,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
         if (authentication.isAuthenticated()) {
-            Optional<UserDTO> user = userService.getByUsername(authRequestDTO.getUsername());
+            Optional<UserWithoutPasswordDTO> user = userService.getByUsername(authRequestDTO.getUsername());
             if (user.isPresent()) {
                 String accessToken = jwtService.generateAccessToken(user.get().getId(), authRequestDTO.getUsername());
                 String refreshToken = jwtService.generateRefreshToken(user.get().getId(), authRequestDTO.getUsername());
@@ -88,7 +86,7 @@ public class AuthController {
     @ApiResponse(responseCode = "409", description = "User already exists")
     @ApiResponse(responseCode = "404", description = "Role not found")
     @PostMapping("/signup")
-    public ResponseEntity<?> createNewUser(@RequestBody UserEntity user) {
+    public ResponseEntity<?> createNewUser(@RequestBody UserSignupRequest user) {
         try {
             authService.create(user);
             return ResponseEntity.ok("User created");
@@ -106,7 +104,7 @@ public class AuthController {
     public ResponseEntity<?> verifyToken() throws UserNotFound {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
-            Optional<UserDTO> user = userService.getByUsername(authentication.getName());
+            Optional<UserWithoutPasswordDTO> user = userService.getByUsername(authentication.getName());
             if (user.isPresent()) {
                 JwtResponseDTO jwtResponseDTO = JwtResponseDTO.builder()
                         .accessToken(jwtService.generateAccessToken(user.get().getId(), user.get().getUsername()))
@@ -130,7 +128,7 @@ public class AuthController {
 
         if (jwtService.validateToken(accessToken)) {
             String username = jwtService.extractUsername(accessToken);
-            Optional<UserDTO> user = userService.getByUsername(username);
+            Optional<UserWithoutPasswordDTO> user = userService.getByUsername(username);
 
             if (user.isPresent()) {
                 return ResponseEntity.ok(user.get());
@@ -186,23 +184,10 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Logout successful")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        ResponseCookie deleteAccessTokenCookie = ResponseCookie.from("accessToken", "")
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0)
-                .build();
-
-        ResponseCookie deleteRefreshTokenCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0)
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteAccessTokenCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteRefreshTokenCookie.toString());
-
-        return ResponseEntity.ok("Logout successful");
+        try {
+            return ResponseEntity.ok(authService.logout(response));
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body("Error");
+        }
     }
 }

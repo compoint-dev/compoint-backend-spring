@@ -3,6 +3,7 @@ package com.example.compoint.service;
 import com.example.compoint.config.UserDetailsImpl;
 import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.dtos.UserSignupRequest;
+import com.example.compoint.dtos.UserWithoutPasswordDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
@@ -57,28 +58,28 @@ public class UserService {
         return "User created";
     }
 
-    public List<UserDTO> getAll() {
+    public List<UserWithoutPasswordDTO> getAll() {
         List<UserEntity> users = new ArrayList<>();
         userRepo.findAll().forEach(users::add);
 
         return users.stream()
-                .map(UserMapper.INSTANCE::userEntityToUserDTO)
+                .map(UserMapper.INSTANCE::userEntityToUserWithoutPasswordDTO)
                 .collect(Collectors.toList());
     }
 
-    public Optional<UserDTO> getById(Long id) throws UserNotFound {
+    public Optional<UserWithoutPasswordDTO> getById(Long id) throws UserNotFound {
         Optional<UserEntity> optionalUser = userRepo.findById(id);
         if (optionalUser.isPresent()) {
-            return Optional.ofNullable(UserMapper.INSTANCE.userEntityToUserDTO(optionalUser.get()));
+            return Optional.ofNullable(UserMapper.INSTANCE.userEntityToUserWithoutPasswordDTO(optionalUser.get()));
         } else {
             throw new UserNotFound("User not found");
         }
     }
 
-    public Optional<UserDTO> getByUsername(String username) throws UserNotFound {
+    public Optional<UserWithoutPasswordDTO> getByUsername(String username) throws UserNotFound {
         Optional<UserEntity> optionalUser = userRepo.findByUsername(username);
         if (optionalUser.isPresent()) {
-            return Optional.ofNullable(UserMapper.INSTANCE.userEntityToUserDTO(optionalUser.get()));
+            return Optional.ofNullable(UserMapper.INSTANCE.userEntityToUserWithoutPasswordDTO(optionalUser.get()));
         } else {
             throw new UserNotFound("User not found");
         }
