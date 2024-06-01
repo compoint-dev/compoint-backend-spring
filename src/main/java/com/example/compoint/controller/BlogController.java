@@ -1,5 +1,6 @@
 package com.example.compoint.controller;
 
+import com.example.compoint.dtos.BlogRequest;
 import com.example.compoint.entity.BlogEntity;
 import com.example.compoint.exception.BlogNotFound;
 import com.example.compoint.exception.UserNotFound;
@@ -25,9 +26,9 @@ public class BlogController {
     @PostMapping("/{userid}")
     public ResponseEntity<?> createBlog(
             @PathVariable Long userid,
-            @RequestBody BlogEntity blogEntity) {
+            @RequestBody BlogRequest blogRequest) {
         try {
-            return ResponseEntity.ok(blogService.create(userid, blogEntity));
+            return ResponseEntity.ok(blogService.create(userid, blogRequest));
         } catch (UserNotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

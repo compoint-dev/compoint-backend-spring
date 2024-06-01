@@ -43,7 +43,7 @@ public class UserService {
         userEntity.setEmail(userSignupRequest.getEmail());
         userEntity.setPassword(passwordEncoder.encode(userSignupRequest.getPassword()));
 
-        Optional<RoleEntity> optionalRole = roleRepo.findByName("USER");
+        Optional<RoleEntity> optionalRole = roleRepo.findByName("ROLE_USER");
         if (optionalRole.isEmpty()) {
             throw new RoleNotFound("Role 'USER' not found");
         }

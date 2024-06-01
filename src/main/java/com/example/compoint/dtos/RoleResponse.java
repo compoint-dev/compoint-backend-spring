@@ -6,7 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoleDTO {
+public class RoleResponse {
     private String name;
 
 }

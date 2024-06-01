@@ -5,16 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserWithoutPasswordDTO {
+public class BlogResponse {
     private Long id;
-    private String username;
-    private String email;
-    private Set<RoleResponse> roles;
-    private UserInfoDTO userInfo;
+    private String content;
+    private UserSummaryDTO user;
+    private LocalDateTime createdAt;
 }

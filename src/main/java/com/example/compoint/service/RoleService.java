@@ -1,6 +1,7 @@
 package com.example.compoint.service;
 
-import com.example.compoint.dtos.RoleDTO;
+import com.example.compoint.dtos.RoleResponse;
+import com.example.compoint.dtos.RoleRequest;
 import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.UserEntity;
@@ -25,24 +26,24 @@ public class RoleService {
     private final RoleRepo roleRepo;
     private final UserRepo userRepo;
 
-    public void create(RoleEntity role) throws RoleAlreadyExist {
+    public void create(RoleRequest role) throws RoleAlreadyExist {
         Optional<RoleEntity> optionalRole = roleRepo.findByName(role.getName());
         if (optionalRole.isPresent()) {
             throw new RoleAlreadyExist("Role already exists");
         }
-        roleRepo.save(role);
+        roleRepo.save(RoleMapper.INSTANCE.roleRequestToRoleEntity(role));
     }
 
-    public List<RoleDTO> getAll() {
+    public List<RoleResponse> getAll() {
         List<RoleEntity> roles = new ArrayList<>();
         roleRepo.findAll().forEach(roles::add);
 
         return roles.stream()
-                .map(RoleMapper.INSTANCE::roleEntityToRoleDTO)
+                .map(RoleMapper.INSTANCE::roleEntityToRoleResponse)
                 .collect(Collectors.toList());
     }
 
-    public UserDTO assignRoleToUser(Long userId, RoleEntity role) throws EntityNotFoundException {
+    public String assignRoleToUser(Long userId, RoleRequest role) throws EntityNotFoundException {
         Optional<UserEntity> optionalUser = userRepo.findById(userId);
         if (!optionalUser.isPresent()) {
             throw new EntityNotFoundException("User not found with id: " + userId);
@@ -60,6 +61,6 @@ public class RoleService {
             userRepo.save(user);
         }
 
-        return UserMapper.INSTANCE.userEntityToUserDTO(user);
+        return "Role assigned";
     }
 }

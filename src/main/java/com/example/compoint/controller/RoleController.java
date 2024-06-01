@@ -1,22 +1,18 @@
 package com.example.compoint.controller;
 
-import com.example.compoint.dtos.RoleDTO;
+import com.example.compoint.dtos.RoleRequest;
 import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.exception.RoleAlreadyExist;
 import com.example.compoint.service.RoleService;
-import io.github.bucket4j.Bucket;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/roles")
@@ -30,7 +26,7 @@ public class    RoleController {
     @ApiResponse(responseCode = "409", description = "Role already exists")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createNewRole(@RequestBody RoleEntity role) {
+    public ResponseEntity<?> createNewRole(@RequestBody RoleRequest role) {
         try {
             roleService.create(role);
             return ResponseEntity.ok("Role created");
@@ -52,10 +48,11 @@ public class    RoleController {
     @ApiResponse(responseCode = "404", description = "User or role not found")
     @PostMapping("/{userid}/assign")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> assignRoleToUser(@Parameter(description = "ID of the user to whom the role is to be assigned") @PathVariable Long userid, @RequestBody RoleEntity role) {
+    public ResponseEntity<?> assignRoleToUser(
+            @Parameter(description = "ID of the user to whom the role is to be assigned") @PathVariable Long userid,
+            @RequestBody RoleRequest role) {
         try {
-            UserDTO user = roleService.assignRoleToUser(userid, role);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(roleService.assignRoleToUser(userid, role));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

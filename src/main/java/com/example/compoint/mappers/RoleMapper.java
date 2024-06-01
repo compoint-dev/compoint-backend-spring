@@ -1,6 +1,7 @@
 package com.example.compoint.mappers;
 
-import com.example.compoint.dtos.RoleDTO;
+import com.example.compoint.dtos.RoleResponse;
+import com.example.compoint.dtos.RoleRequest;
 import com.example.compoint.entity.RoleEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -9,5 +10,6 @@ import org.mapstruct.factory.Mappers;
 public interface RoleMapper {
     RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
 
-    RoleDTO roleEntityToRoleDTO(RoleEntity role);
+    RoleResponse roleEntityToRoleResponse(RoleEntity roleEntity);
+    RoleEntity roleRequestToRoleEntity(RoleRequest roleRequest);
 }

@@ -13,7 +13,7 @@ public class StandupResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private UserDTO user;
+    private UserSummaryDTO user;
     private StandupInfoDTO standupInfo;
 }
 
