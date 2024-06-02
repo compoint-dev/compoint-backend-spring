@@ -1,9 +1,10 @@
 package com.example.compoint.service;
 
 import com.example.compoint.config.UserDetailsImpl;
-import com.example.compoint.dtos.UserDTO;
-import com.example.compoint.dtos.UserSignupRequest;
-import com.example.compoint.dtos.UserWithoutPasswordDTO;
+import com.example.compoint.dtos.userDTO.UserSignupRequest;
+import com.example.compoint.dtos.userDTO.UserUpdateRequest;
+import com.example.compoint.dtos.userDTO.UserUpdateResponse;
+import com.example.compoint.dtos.userDTO.UserWithoutPasswordDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.StandupEntity;
 import com.example.compoint.entity.UserEntity;
@@ -12,6 +13,7 @@ import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotAuthorized;
 import com.example.compoint.exception.UserNotFound;
+import com.example.compoint.mappers.UserInfoMapper;
 import com.example.compoint.mappers.UserMapper;
 import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.StandupRepo;
@@ -38,17 +40,13 @@ public class UserService {
             throw new UserAlreadyExist("User already exists");
         }
 
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(userSignupRequest.getUsername());
-        userEntity.setEmail(userSignupRequest.getEmail());
+        UserEntity userEntity = UserMapper.INSTANCE.userSignupRequestToUserEntity(userSignupRequest);
         userEntity.setPassword(passwordEncoder.encode(userSignupRequest.getPassword()));
 
-        Optional<RoleEntity> optionalRole = roleRepo.findByName("ROLE_USER");
-        if (optionalRole.isEmpty()) {
-            throw new RoleNotFound("Role 'USER' not found");
-        }
+        RoleEntity role = roleRepo.findByName("ROLE_USER")
+                .orElseThrow(() -> new RoleNotFound("Role 'USER' not found"));
 
-        userEntity.getRoles().add(optionalRole.get());
+        userEntity.getRoles().add(role);
 
         UserInfoEntity userInfo = new UserInfoEntity();
         userInfo.setUser(userEntity);
@@ -86,13 +84,8 @@ public class UserService {
     }
 
     //TODO: Доделать
-    public UserEntity update(Long id, UserEntity user) throws UserNotFound, UserAlreadyExist {
-        Optional<UserEntity> optionalUser = userRepo.findById(id);
-        if (!optionalUser.isPresent()) {
-            throw new UserNotFound("User not found");
-        }
-
-        UserEntity existingUser = optionalUser.get();
+    public UserUpdateResponse update(Long id, UserUpdateRequest user) throws UserNotFound, UserAlreadyExist {
+        UserEntity existingUser = userRepo.findById(id).orElseThrow(() -> new UserNotFound("User not found"));
 
         Optional<UserEntity> optionalNewInfo = userRepo.findByUsername(user.getUsername());
         if (optionalNewInfo.isPresent() && !optionalNewInfo.get().getId().equals(existingUser.getId())) {
@@ -101,8 +94,16 @@ public class UserService {
 
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(existingUser);
+
+        if (existingUser.getUserInfo() != null) {
+            UserInfoMapper.INSTANCE.updateUserInfoFromDTO(user.getUserInfo(), existingUser.getUserInfo());
+        } else {
+            existingUser.setUserInfo(UserInfoMapper.INSTANCE.userInfoDTOToUserInfoEntity(user.getUserInfo()));
+            existingUser.getUserInfo().setUser(existingUser);
+        }
+
+        userRepo.save(existingUser);
+        return UserMapper.INSTANCE.userEntityToUserUpdateResponse(existingUser);
     }
 
     public String delete(Long id) throws UserNotFound {

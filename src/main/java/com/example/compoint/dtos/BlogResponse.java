@@ -1,5 +1,6 @@
 package com.example.compoint.dtos;
 
+import com.example.compoint.dtos.userDTO.UserSummaryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,5 +1,6 @@
-package com.example.compoint.dtos;
+package com.example.compoint.dtos.userDTO;
 
+import com.example.compoint.dtos.RoleResponse;
 import lombok.*;
 
 import java.util.Set;

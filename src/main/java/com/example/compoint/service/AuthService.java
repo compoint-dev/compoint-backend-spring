@@ -1,6 +1,6 @@
 package com.example.compoint.service;
 
-import com.example.compoint.dtos.UserSignupRequest;
+import com.example.compoint.dtos.userDTO.UserSignupRequest;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.entity.UserInfoEntity;

@@ -2,12 +2,10 @@ package com.example.compoint.service;
 
 import com.example.compoint.dtos.RoleResponse;
 import com.example.compoint.dtos.RoleRequest;
-import com.example.compoint.dtos.UserDTO;
 import com.example.compoint.entity.RoleEntity;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleAlreadyExist;
 import com.example.compoint.mappers.RoleMapper;
-import com.example.compoint.mappers.UserMapper;
 import com.example.compoint.repository.RoleRepo;
 import com.example.compoint.repository.UserRepo;
 import jakarta.persistence.EntityNotFoundException;

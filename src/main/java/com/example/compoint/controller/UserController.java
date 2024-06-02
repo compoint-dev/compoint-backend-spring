@@ -1,6 +1,7 @@
 package com.example.compoint.controller;
 
-import com.example.compoint.dtos.UserSignupRequest;
+import com.example.compoint.dtos.userDTO.UserSignupRequest;
+import com.example.compoint.dtos.userDTO.UserUpdateRequest;
 import com.example.compoint.entity.UserEntity;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
@@ -76,7 +77,7 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "409", description = "User already exists with updated details")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserEntity user) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest user) {
         try {
             return ResponseEntity.ok(userService.update(id, user));
         } catch (UserNotFound e) {

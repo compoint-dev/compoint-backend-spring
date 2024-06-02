@@ -1,4 +1,4 @@
-package com.example.compoint.dtos;
+package com.example.compoint.dtos.userDTO;
 
 import lombok.*;
 

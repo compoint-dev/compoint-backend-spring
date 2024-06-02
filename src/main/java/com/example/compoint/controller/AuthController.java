@@ -1,7 +1,8 @@
 package com.example.compoint.controller;
 
 import com.example.compoint.dtos.*;
-import com.example.compoint.entity.UserEntity;
+import com.example.compoint.dtos.userDTO.UserSignupRequest;
+import com.example.compoint.dtos.userDTO.UserWithoutPasswordDTO;
 import com.example.compoint.exception.RoleNotFound;
 import com.example.compoint.exception.UserAlreadyExist;
 import com.example.compoint.exception.UserNotFound;

@@ -1,4 +1,4 @@
-package com.example.compoint.dtos;
+package com.example.compoint.dtos.userDTO;
 
 import lombok.*;
 
@@ -9,5 +9,4 @@ import lombok.*;
 public class UserInfoDTO {
     private String imagePath;
     private Long age;
-
 }
